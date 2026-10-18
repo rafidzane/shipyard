@@ -73,4 +73,5 @@ has "0.5.0 sizing recorded in state" "$state" 'sizing:'
 has "0.5.0 re-sized when wrong" "$skill" 'Re-size when the estimate was wrong'
 has "0.5.0 owner's mode never changed alone" "$skill" 'never changed on your own'
 has "0.5.0 standard prefix" "$skill" '`standard:`'
+has "0.5.1 version command exists" "$root/commands/version.md" 'CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json'
 exit $fail
