@@ -1,0 +1,31 @@
+schema_version: "1.0"
+name: ask-when-ambiguous
+description: A request with more than one reasonable meaning is asked about before any proposal is written.
+tags: [questions]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard add a discount option"
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: asked-before-proposing
+    type: llm
+    focus: trace
+    criteria: >-
+      Before any approval.md is written, the agent asks the user what the discount means
+      (for example what it applies to, a percentage or a fixed amount, or how it is entered),
+      through the AskUserQuestion tool or a direct question. It does not pick an interpretation itself
+      and go on to write a proposal for it.
+  - name: no-approval-yet
+    type: file_exists
+    path: "docs/shipyard/*/approval.md"
+    exists: false
+  - name: no-code
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: discount
+    flags: i
+    match: not_contains

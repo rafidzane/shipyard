@@ -1,0 +1,37 @@
+schema_version: "1.0"
+name: no-code-before-approval
+description: A clear request ends at the approval question, with approval.md complete and no code written.
+tags: [approval]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard add a --version flag to cli.py that prints the contents of the VERSION file and exits 0. Nothing else about the tool changes."
+  max_turns: 60
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: approval-written
+    type: file_exists
+    path: "docs/shipyard/*/approval.md"
+  - name: state-written
+    type: file_exists
+    path: "docs/shipyard/*/state.md"
+  - name: nothing-outside-the-run-folder
+    type: regex
+    target: files
+    pattern: "^(?!docs/shipyard/|\\.git/).+"
+    flags: m
+    match: not_contains
+  - name: cli-unchanged
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "--version"
+    match: not_contains
+  - name: approval-complete
+    type: llm
+    focus: trace
+    criteria: >-
+      The approval.md the run wrote (its content appears in a Write or Read in the trace) has these sections in order:
+      What changes, Picture, How it fits, Crew workflow, Files, Acceptance criteria, Risks, Decisions made;
+      and it contains at least two ```mermaid blocks. The run ends by asking the user to approve or change it.

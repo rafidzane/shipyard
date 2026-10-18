@@ -21,7 +21,7 @@ The owner's request, in plain words, and the repository you are in.
 ## Hard rules
 
 - Read-only. Use Bash only for commands that read: `ls`, `git log`, `git status`, `cat`, `grep`. Never write, install, run a migration or start a server.
-- Do not guess what the owner wants. Anything where two reasonable readings would build different things goes under `## Unclear`.
+- Do not guess what the owner wants. Anything where two reasonable readings would give the owner something noticeably different goes under `## Unclear`. Leave out details a sensible builder settles alone (formatting, naming, whitespace).
 - Quote the project's rules; do not paraphrase them.
 
 ## Report

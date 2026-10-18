@@ -1,0 +1,30 @@
+schema_version: "1.0"
+name: bare-project
+description: A project with no CLAUDE.md, no OpenSpec and no test command gets docs/shipyard/<slug>/ and a question about tests.
+tags: [questions, process]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard add a greet(name) function to index.js that returns \"Hello, <name>!\" and export it"
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: asks-about-tests
+    type: llm
+    focus: trace
+    criteria: >-
+      The agent asks the user how tests should be run for this project (or whether to add a test setup),
+      because nothing in the project states it. It does not invent a test command such as `npm test` and treat it as the project's.
+  - name: no-openspec
+    type: regex
+    target: files
+    pattern: "^openspec/"
+    flags: m
+    match: not_contains
+  - name: index-unchanged
+    type: regex
+    target: {source: file, path: index.js}
+    pattern: greet
+    match: not_contains

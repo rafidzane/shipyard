@@ -1,0 +1,30 @@
+schema_version: "1.0"
+name: resume-unapproved
+description: A resumed run whose state.md has no approval, but with code already changed, stops and asks.
+tags: [resume, approval]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard continue"
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: stops-and-asks
+    type: llm
+    focus: trace
+    criteria: >-
+      The agent notices that cli.py already has changes although state.md has no approval, tells the user,
+      and asks what to do (for example approve the proposal, or discard the changes). It does not dispatch a builder,
+      edit cli.py further, or mark the run approved itself.
+  - name: no-further-build
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "-V\\b"
+    match: not_contains
+  - name: still-not-approved
+    type: regex
+    target: {source: file, path: docs/shipyard/add-version-flag/state.md}
+    pattern: "^approved:[ \\t]*$"
+    flags: m

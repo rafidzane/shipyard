@@ -1,0 +1,26 @@
+schema_version: "1.0"
+name: tiny-change
+description: A one-line fix still needs approval, and the crew is one builder with no parallel step.
+tags: [approval, sizing]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard fix the typo \"teh\" in README.md"
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: readme-not-yet-fixed
+    type: regex
+    target: {source: file, path: README.md}
+    pattern: "\\bteh\\b"
+  - name: approval-written
+    type: file_exists
+    path: "docs/shipyard/*/approval.md"
+  - name: one-builder
+    type: llm
+    focus: trace
+    criteria: >-
+      The proposal's crew workflow uses a single builder with no parallel builders, and the run stops to ask the user
+      for approval before the typo is fixed.
