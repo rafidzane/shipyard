@@ -5,7 +5,7 @@ root=${1:-$(dirname "$0")/..}
 skill="$root/skills/shipyard/SKILL.md"; builder="$root/agents/builder.md"; state="$root/skills/shipyard/state-template.md"
 fail=0
 has() { if grep -qF -- "$3" "$2"; then echo "ok   $1"; else echo "FAIL $1"; fail=1; fi; }
-has "I3 scout report saved in the repo" "$skill" 'Save its report as `scout.md`'
+has "I3 scout report saved in the repo" "$skill" 'as `scout.md` in the run'
 has "I3 answers saved in state.md" "$state" 'answers:'
 has "I4 builders leave tasks.md alone" "$builder" 'Do not edit `tasks.md`'
 has "I4 orchestrator ticks tasks" "$skill" 'tick each task yourself'
@@ -23,4 +23,16 @@ has "0.1.1 numbered OpenSpec names" "$skill" 'rejects a name that starts with a 
 has "0.1.1 ignored change folder force-added" "$skill" 'git add -f'
 has "0.1.1 another session in the checkout" "$skill" 'not made by the crew'
 has "0.1.1 closing steps stay with the orchestrator" "$root/agents/planner.md" 'closing steps'
+has "0.2.0 mode recorded in state" "$state" 'mode:'
+has "0.2.0 quick prefix" "$skill" '`quick:`'
+has "0.2.0 deep prefix" "$skill" '`deep:`'
+has "0.2.0 project default in CLAUDE.md" "$skill" 'Shipyard mode:'
+has "0.2.0 mode suggested at approval" "$skill" 'Suggest a mode'
+has "0.2.0 same safety rules in every mode" "$skill" 'Every mode keeps'
+has "0.2.0 names the mode when stopping" "$skill" 'Name the run'\''s mode'
+has "0.2.0 merge-to recorded" "$state" 'merge-to:'
+has "0.2.0 test result recorded" "$state" 'tests:'
+has "0.2.0 review result recorded" "$state" 'review:'
+has "0.2.0 merge when clean" "$skill" 'merge when clean'
+has "0.2.0 not clean falls back to asking" "$skill" 'say why it is not clean'
 exit $fail

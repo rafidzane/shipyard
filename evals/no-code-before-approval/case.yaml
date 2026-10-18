@@ -17,6 +17,10 @@ graders:
   - name: state-written
     type: file_exists
     path: "docs/shipyard/*/state.md"
+  - name: standard-by-default
+    type: llm
+    criteria: >-
+      The final message tells the user the run is in standard mode.
   - name: nothing-outside-the-run-folder
     type: regex
     target: files

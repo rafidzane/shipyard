@@ -1,5 +1,7 @@
 # Approval: <slug>
 
+<!-- quick: only What changes, Picture, Files, Acceptance criteria, Decisions made. standard: the eight sections. deep: the eight plus the three at the end. -->
+
 ## What changes
 <3 to 6 plain sentences: what the owner will see or get, and what stays the same.>
 
@@ -33,3 +35,12 @@ flowchart LR
 ## Decisions made
 - Owner: <an answer the owner gave>
 - Planner: <a call the planner made, for the owner to check>
+
+## Alternatives considered
+<deep only: two or three other ways to build it, and why this one>
+
+## Pre-mortem
+<deep only: assume it shipped and failed; the likeliest reasons, each with the guard against it>
+
+## Test plan
+<deep only: what will be tested and how, including any browser or end-to-end check>

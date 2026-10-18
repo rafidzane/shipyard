@@ -50,3 +50,36 @@ printf '\ndef test_version(capsys):\n    assert main(["cli.py", "--version"]) ==
 git add -A && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm 'shipyard: build, tests and review for add-version-flag'
 SH
 } | write finish-asks-merge "tiny-cli with a run approved, built, tested and reviewed; only the finish is left"
+
+{ cli; cat <<'SH'
+sed -i 's/A small command line tool./A small command line tool for teh terminal./' README.md
+git -c user.name=Eval -c user.email=eval@example.invalid commit -qam "typo"
+SH
+} | write quick-mode "tiny-cli with a typo in its README"
+cli | write deep-mode "tiny-cli"
+
+finish_with() {  # $1: extra lines for state.md (tests:, review:, merge-to:)
+  cli; echo 'git checkout -qb shipyard/add-version-flag'; run finish; echo "$commit 'shipyard: proposal for add-version-flag'"
+  cat <<'SH'
+d=docs/shipyard/add-version-flag
+sed -i "s/^approved:.*/approved: 2026-10-18 — add --version as proposed/" "$d/state.md"
+sed -i 's/- \[ \]/- [x]/' "$d/tasks.md"
+sed -i 's/    if argv\[1:\] == \["hello"\]:/    if argv[1:] == ["--version"]:\n        print(open("VERSION").read().strip())\n        return 0\n    if argv[1:] == ["hello"]:/' cli.py
+printf '\ndef test_version(capsys):\n    assert main(["cli.py", "--version"]) == 0\n    assert capsys.readouterr().out == "0.3.0\\n"\n' >> test_cli.py
+SH
+  echo "printf '%s\n' $1 >> \"\$d/state.md\""
+  cat <<'SH'
+git add -A && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm 'shipyard: build, tests and review for add-version-flag'
+# main moves on meanwhile: ON_MAIN exists only on main, so the workspace shows which branch the run ends on
+git checkout -q main && echo main > ON_MAIN && git add ON_MAIN && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm 'main moves on' && git checkout -q shipyard/add-version-flag
+git init -q --bare .remote.git && mkdir -p .git/info && echo .remote.git >> .git/info/exclude
+git remote add origin "$PWD/.remote.git"
+git push -q origin main shipyard/add-version-flag
+git branch -q --set-upstream-to=origin/shipyard/add-version-flag
+git checkout -q main && git branch -q --set-upstream-to=origin/main && git checkout -q shipyard/add-version-flag
+SH
+}
+finish_with "'tests: passed — python -m pytest -q' 'review: clean' 'merge-to: main'" \
+  | write merge-when-clean "a finished, clean run whose owner gave merge-to: main up front"
+finish_with "'tests: failed — python -m pytest -q (test_version)' 'review: clean' 'merge-to: main'" \
+  | write merge-not-clean "a finished run with merge-to: main whose tests failed"

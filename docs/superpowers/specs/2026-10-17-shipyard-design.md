@@ -114,3 +114,9 @@ flowchart TD
 - The exact `state.md` format.
 - How to test the plugin. At minimum: plugin validation, plus one end-to-end run on a small real change in Leisuremint.
 - Whether `/shipyard:install` is needed at all, depending on the spike.
+
+## Changes after the first release
+
+- **0.2.0, modes** (2026-10-18, owner's request): `quick:`, standard (no prefix) and `deep:` set how much effort each stage gets. The rules on asking, approval, the project's rules, test data and merging hold in every mode. A project default comes from a `Shipyard mode: <mode>` line in `CLAUDE.md`. Shipyard suggests a mode at approval.
+- **0.2.0, merge when clean** (2026-10-18, owner's request): permission to merge can be given up front (`merge to <branch>:` in the prefix, or at approval) and is recorded as `merge-to:`. The finish then merges and pushes without asking, but only when `tests: passed`, `review: clean` and no scope change is pending. Otherwise it asks, and says why.
+

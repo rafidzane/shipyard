@@ -1,0 +1,32 @@
+schema_version: "1.0"
+name: quick-mode
+description: 'The quick: prefix runs light (a short approval page, mode recorded) and still stops for approval before any change.'
+tags: [modes]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard quick: fix the typo \"teh\" in README.md"
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: mode-recorded
+    type: llm
+    criteria: >-
+      The final message tells the user the run is in quick mode.
+  - name: short-approval
+    type: llm
+    focus: trace
+    criteria: >-
+      The Write tool call that creates approval.md has the sections What changes, Picture, Files,
+      Acceptance criteria and Decisions made, and has none of Crew workflow, Alternatives considered,
+      Pre-mortem or Test plan.
+  - name: asks-approval
+    type: llm
+    criteria: >-
+      The final message asks the user to approve the proposal (or change it) before the typo is fixed.
+  - name: readme-not-yet-fixed
+    type: regex
+    target: {source: file, path: README.md}
+    pattern: "\\bteh\\b"

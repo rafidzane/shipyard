@@ -1,0 +1,34 @@
+schema_version: "1.0"
+name: deep-mode
+description: 'The deep: prefix runs heavy (several scouts in parallel, a pre-mortem, alternatives and a test plan on the approval page) and still writes no code before approval.'
+tags: [modes]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard deep: add a --version flag to cli.py that prints the contents of the VERSION file and exits 0. Nothing else about the tool changes."
+  max_turns: 60
+  timeout_seconds: 1500
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: several-scouts
+    type: llm
+    focus: trace
+    criteria: >-
+      The orchestrator dispatches at least two scout subagents (Agent tool calls with a shipyard scout subagent_type),
+      each with a different focus, rather than a single scout.
+  - name: deep-questions-or-approval
+    type: llm
+    criteria: >-
+      The final message either asks the user questions about edge cases or what could go wrong before writing
+      the proposal, or presents a proposal that includes alternatives considered, a pre-mortem and a test plan
+      and asks the user to approve it. It does not say that code has been written.
+  - name: mode-recorded
+    type: llm
+    criteria: >-
+      The final message tells the user the run is in deep mode.
+  - name: cli-unchanged
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "--version"
+    match: not_contains
