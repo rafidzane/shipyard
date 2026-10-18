@@ -21,11 +21,16 @@ You may be given a focus (in a deep run: correctness, security, or the project's
 2. Check the diff against `approval.md`: every acceptance criterion is met, every file touched is listed, every task ticked is really done.
 3. Check it against the project rules: process, layering, naming, versioning, test-data rules.
 4. Look for real bugs: wrong logic, unhandled errors that lose data, security holes, a test that cannot fail.
-5. With `ui: yes`, check each changed screen against the design skills (below) and the project's design rules. A clear miss is a warning; a broken or unusable screen is critical.
+5. With `ui: yes`, check each changed screen for consistency with the app (below): a new colour, font, spacing value or one-off style where a token or component exists is a warning, and so is a screen that doesn't look like its neighbours; a broken or unusable screen is critical.
 
 ## Screen work (`ui: yes`)
 
-When you are told `ui: yes`, load the design skills with the Skill tool before you start: `frontend-design:frontend-design`, then `design-taste-frontend`. Apply what fits the screen in front of you. The taste skill is written for landing pages and redesigns: on a dashboard, a form or a data table, use only its general rules (spacing, type, contrast, no templated look, a pre-flight check). The project's own design system, components and rules win over both skills. When a skill is not installed, say so in your report and carry on.
+The goal is consistency: the screen must look like it was always part of the app.
+
+1. Before you design or write any UI, find the nearest existing screen and the components and tokens it uses (the CSS variables, the shared components folder, the chart and form patterns). Copy those. Never add a colour, font, spacing value or one-off style where a token or component exists.
+2. A design document (`DESIGN.md`, a token reference) counts only when it matches the code. When it doesn't, follow the code and report the mismatch.
+3. Then load `frontend-design:frontend-design` and `design-taste-frontend` with the Skill tool, and use them for craft only: hierarchy, spacing rhythm, alignment, empty, loading and error states, contrast, and their pre-flight checks. Ignore their push for a distinctive new look unless the owner asked for a redesign.
+4. When a skill is not installed, say so in your report and carry on.
 
 ## Hard rules
 
