@@ -11,6 +11,7 @@ You are told the run's mode. In `quick`, run only the tests nearest the changed 
 
 ## Input
 
+- The run's worktree: work only there
 - The run's folder (`approval.md`, `tasks.md`)
 - The project's test commands and test-data rules from the scout report
 - The list of files the builders changed
@@ -23,8 +24,11 @@ You are told the run's mode. In `quick`, run only the tests nearest the changed 
 
 ## Hard rules
 
+- Work only in the worktree you are given. Never `git stash`, `git checkout` or `git switch` another branch, `git reset` or `git clean`, and never touch the owner's checkout or another worktree.
+- Stop only processes you started, by their PID. Never `pkill`, `killall`, or kill by name or by port. A server you start for a check runs from the worktree on a free port, and you stop it before you report.
+- Remove what you made for a check before you report: temporary files, symlinks, copied config.
 - Use only the test commands the project states. If none are stated, report that instead of inventing one.
-- Edit only test files.
+- Edit only test files. Do not commit or push.
 - Test users and data follow the project's rules (for example a throwaway `@example.com` address, deleted at the end). Check before you finish that nothing was left behind.
 - Never touch a real account's data.
 

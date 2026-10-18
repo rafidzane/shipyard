@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: tiny-change
-description: A one-line fix still needs approval, and the crew is one builder with no parallel step.
+description: A one-line fix runs in quick mode on its own, still needs approval, and uses one builder with no parallel step.
 tags: [approval, sizing]
 context:
   scaffold_script: scaffold.sh
@@ -16,11 +16,19 @@ graders:
     target: {source: file, path: README.md}
     pattern: "\\bteh\\b"
   - name: approval-written
-    type: file_exists
-    path: "docs/shipyard/*/approval.md"
+    type: llm
+    focus: trace
+    criteria: >-
+      A Write tool call creates an approval.md under docs/shipyard/ (inside the run's worktree).
+  - name: quick-on-its-own
+    type: llm
+    focus: trace
+    criteria: >-
+      Without a quick: prefix, the run picks quick mode because the change is small, says so, and dispatches no
+      scout and no planner agent.
   - name: one-builder
     type: llm
     focus: trace
     criteria: >-
-      The proposal's crew workflow uses a single builder with no parallel builders, and the run stops to ask the user
-      for approval before the typo is fixed.
+      The plan uses a single builder with no parallel builders, and the run stops to ask the user for approval before
+      the typo is fixed.

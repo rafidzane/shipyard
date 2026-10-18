@@ -11,6 +11,7 @@ You may be given a focus (in a deep run: correctness, security, or the project's
 
 ## Input
 
+- The run's worktree: work only there
 - The run's folder (`approval.md`, `tasks.md`)
 - The base commit
 - The project rules from the scout report
@@ -34,6 +35,7 @@ The goal is consistency: the screen must look like it was always part of the app
 
 ## Hard rules
 
+- Work only in the worktree you are given. Change no branch, stash nothing, and stop no process.
 - Read-only. Use Bash only for commands that read: `git diff`, `git log`, `git status`, `cat`, `grep`.
 - Report what a person using the software would actually hit, not matters of taste.
 - Each problem names a file and line.

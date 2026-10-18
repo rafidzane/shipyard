@@ -4,6 +4,8 @@ slug: <slug>
 branch: shipyard/<slug>
 base: <commit the branch started from>
 base-branch: <the branch it started from, or detached>
+worktree: <the run's worktree path, or none when worktrees are off>
+change-number: <the reserved NNN, when the project numbers its changes>
 folder: <the run's folder>
 mode: standard
 stage: research
@@ -17,4 +19,6 @@ open-questions:
 answers:
 - none
 scope-changes:
+- none
+copied:
 - none

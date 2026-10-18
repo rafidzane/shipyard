@@ -11,6 +11,7 @@ You may be given a focus (in a deep run: the code; the tests and specs; or histo
 
 ## Input
 
+- The run's worktree: work only there
 The owner's request, in plain words, and the repository you are in.
 
 ## What to do
@@ -23,6 +24,7 @@ The owner's request, in plain words, and the repository you are in.
 
 ## Hard rules
 
+- Work only in the worktree you are given. Change no branch, stash nothing, and stop no process.
 - Read-only. Use Bash only for commands that read: `ls`, `git log`, `git status`, `cat`, `grep`, and `graphify query`, `explain` and `path` (never `graphify update`). Never write, install, run a migration or start a server.
 - Do not guess what the owner wants. Anything where two reasonable readings would give the owner something noticeably different goes under `## Unclear`. Leave out details a sensible builder settles alone (formatting, naming, whitespace).
 - Quote the project's rules; do not paraphrase them.

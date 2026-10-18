@@ -11,6 +11,7 @@ You are told the run's mode. Write `approval.md` in that mode's form, as the com
 
 ## Input
 
+- The run's worktree: work only there
 - The request, the scout report and the owner's answers
 - The target folder (for example `openspec/changes/<name>/` or `docs/shipyard/<slug>/`)
 - Whether the project has its own process (if it does, its proposal files already exist in the folder)
@@ -39,6 +40,7 @@ The goal is consistency: the screen must look like it was always part of the app
 
 ## Hard rules
 
+- Work only in the worktree you are given. Change no branch, stash nothing, and stop no process.
 - Only Markdown, fenced text and Mermaid in `approval.md`, so GitHub's mobile app renders it. No HTML, no images.
 - Never write outside the target folder. You write no code.
 - Do not fill a gap with a guess. Anything you could not settle goes under `## Unclear`.
