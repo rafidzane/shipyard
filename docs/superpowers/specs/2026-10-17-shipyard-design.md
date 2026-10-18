@@ -104,7 +104,7 @@ flowchart TD
 - Ask at any ambiguous point. Make the proposal with a picture, a diagram and the workflow, for approval.
 - Approval page format: Markdown or HTML in the repo (Markdown with Mermaid chosen, so it renders on GitHub mobile).
 - Must work on web and mobile.
-- **Finished means a pushed branch.** The run ends with its `shipyard/<slug>` branch pushed to GitHub. The owner opens the pull request or merges it; Shipyard never merges to main.
+- **Finished means a pushed branch, then the owner's merge choice** (changed 2026-10-18, 0.1.1). The run pushes `shipyard/<slug>`, then always asks whether to merge and push: into the branch it started from, `main`, another branch, or not at all. It merges only on that answer, stops on any conflict, and never deletes the run's branch.
 - **Fresh approval only for real scope changes.** After approval, if the plan gains or loses a goal, a screen or a database change, the orchestrator updates `approval.md`, sets `state.md` back to not approved and asks again. Smaller adjustments are listed in the final summary.
 
 ## Left to the builder

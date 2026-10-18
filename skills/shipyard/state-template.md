@@ -3,6 +3,7 @@
 slug: <slug>
 branch: shipyard/<slug>
 base: <commit the branch started from>
+base-branch: <the branch it started from, or detached>
 folder: <the run's folder>
 stage: research
 approved:

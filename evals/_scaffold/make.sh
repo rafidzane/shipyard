@@ -38,3 +38,15 @@ SH
 } | write resume-from-remote "tiny-cli on main; a run awaiting approval exists only on origin/shipyard/add-version-flag"
 { cli; echo 'git checkout -qb shipyard/add-version-flag'; run awaiting-approval; echo "$commit 'shipyard: proposal for add-version-flag'"; } \
   | write new-request-open-run "tiny-cli with a Shipyard run waiting for approval on its branch"
+
+{ cli; echo 'git checkout -qb shipyard/add-version-flag'; run finish; echo "$commit 'shipyard: proposal for add-version-flag'"
+  cat <<'SH'
+# Approved, built, tested and reviewed: only the finish is left
+d=docs/shipyard/add-version-flag
+sed -i "s/^approved:.*/approved: 2026-10-18 — add --version as proposed/" "$d/state.md"
+sed -i 's/- \[ \]/- [x]/' "$d/tasks.md"
+sed -i 's/    if argv\[1:\] == \["hello"\]:/    if argv[1:] == ["--version"]:\n        print(open("VERSION").read().strip())\n        return 0\n    if argv[1:] == ["hello"]:/' cli.py
+printf '\ndef test_version(capsys):\n    assert main(["cli.py", "--version"]) == 0\n    assert capsys.readouterr().out == "0.3.0\\n"\n' >> test_cli.py
+git add -A && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm 'shipyard: build, tests and review for add-version-flag'
+SH
+} | write finish-asks-merge "tiny-cli with a run approved, built, tested and reviewed; only the finish is left"

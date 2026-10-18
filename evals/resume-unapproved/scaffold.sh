@@ -46,6 +46,7 @@ cat > "$d/state.md" <<MD
 slug: add-version-flag
 branch: shipyard/add-version-flag
 base: $base
+base-branch: main
 folder: $d
 stage: $run_stage
 approved:

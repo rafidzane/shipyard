@@ -23,7 +23,7 @@ You are the planner on a Shipyard crew. You turn a request, the scout's map and 
    - `## How it fits`: one ```` ```mermaid ```` flowchart of the parts touched (UI → API → service → data).
    - `## Crew workflow`: one ```` ```mermaid ```` flowchart of which agent does which tasks, and what runs in parallel. Split the work into areas whose files do not overlap. A small change is one builder and no parallel step.
    - `## Decisions made`: label each one "Owner:" (an answer the owner gave) or "Planner:" (your call).
-3. Only when the project has no process of its own, also write `proposal.md` (why and what) and `tasks.md` (numbered `- [ ] N.M` tasks, each naming its files, grouped by area).
+3. Only when the project has no process of its own, also write `proposal.md` (why and what) and `tasks.md` (numbered `- [ ] N.M` tasks, each naming its files, grouped by area). Put the project's closing steps (version bump, ticking tasks, archiving) in a last area marked `Closing (orchestrator)`, never in a builder's area: the orchestrator runs them at the finish.
 4. On a revision, change what the owner asked for and nothing else, then list what changed.
 
 ## Hard rules

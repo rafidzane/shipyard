@@ -1,0 +1,27 @@
+schema_version: "1.0"
+name: finish-asks-merge
+description: At the finish, the owner is asked whether to merge and push, into the starting branch, main or another branch; nothing is merged without an answer.
+tags: [finish]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard carry on"
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: asks-merge-with-options
+    type: llm
+    focus: trace
+    criteria: >-
+      Near the end of the run the agent asks the owner whether to merge and push the branch
+      shipyard/add-version-flag, offering at least these choices: the branch the run started from
+      (main here, named as such), another branch the owner names, and not merging (leaving the branch).
+      It asks through AskUserQuestion or a direct question, and stops to wait for the answer.
+  - name: no-merge-without-answer
+    type: llm
+    focus: trace
+    criteria: >-
+      The agent never runs `git merge`, never checks out main to merge, and never pushes main or any
+      branch other than shipyard/add-version-flag. Merging happens only after an answer, and there is none in this run.

@@ -16,4 +16,11 @@ has "I6 dirty tree asked about first" "$skill" 'If the working tree has uncommit
 has "I1 push after every commit" "$skill" 'Push after every commit'
 has "I9 state starts outside openspec" "$skill" 'it refuses a folder that already exists'
 has "I9 archive only after done" "$skill" 'Only now archive the change'
+has "0.1.1 base branch recorded" "$state" 'base-branch:'
+has "0.1.1 finish asks to merge and push" "$skill" 'Merge and push'
+has "0.1.1 merge stops on conflict" "$skill" 'On a conflict'
+has "0.1.1 numbered OpenSpec names" "$skill" 'rejects a name that starts with a digit'
+has "0.1.1 ignored change folder force-added" "$skill" 'git add -f'
+has "0.1.1 another session in the checkout" "$skill" 'not made by the crew'
+has "0.1.1 closing steps stay with the orchestrator" "$root/agents/planner.md" 'closing steps'
 exit $fail

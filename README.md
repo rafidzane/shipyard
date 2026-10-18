@@ -5,7 +5,7 @@ A Claude Code plugin that turns a plain-words request into a pushed branch. A sm
 - It **asks instead of guessing** whenever a wrong guess would change what gets built.
 - It writes **`approval.md`** (a wireframe, a diagram of the parts involved and the crew's workflow) and builds nothing until you approve it.
 - It **follows your project's own rules** from `CLAUDE.md` / `AGENTS.md`: its process, test commands, version bumps, test-data rules.
-- It **finishes on a pushed branch**, `shipyard/<slug>`. You open the pull request; Shipyard never merges.
+- It **finishes on a pushed branch**, `shipyard/<slug>`, then asks whether to merge and push: into the branch you started from, `main`, another branch, or not at all. It never merges without your answer.
 
 ## The run
 

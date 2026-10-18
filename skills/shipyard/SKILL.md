@@ -13,7 +13,8 @@ You are the orchestrator. You run in the main session because only you can start
 2. **No production code before approval.** Nothing outside the run's folder changes until `state.md` has a filled-in `approved:` line. Only the owner approves, in their own words. You never write `approved:` on your own judgment.
 3. **The project's rules win.** Follow its `CLAUDE.md` / `AGENTS.md`: its process, test commands, version bumps, rules on test data. Shipyard's defaults apply only where the project says nothing.
 4. **State lives in the repo.** The run's folder holds the record: `state.md`, `tasks.md`, the scout's report as `scout.md`, and the owner's answers under `answers:` in `state.md`. Update `state.md` when the stage changes. A run on any device resumes from these files alone, never from this chat.
-5. **Commit at the end of every stage** on the run's branch, with messages like `shipyard: <stage> for <slug>`. Stage files by path: the run's folder and the files the builders own. Never `git add -A` or `git add .`, so none of the owner's own work is swept in. Push after every commit when `push-ok` is `yes` or `cloud`, so another device can pick the run up. Never merge to main, never force-push, never delete a branch you did not create.
+5. **Commit at the end of every stage** on the run's branch, with messages like `shipyard: <stage> for <slug>`. Stage files by path: the run's folder and the files the builders own. Never `git add -A` or `git add .`, so none of the owner's own work is swept in. Push after every commit when `push-ok` is `yes` or `cloud`, so another device can pick the run up. Never merge without the owner's answer at the finish (stage 8), never force-push, never delete a branch you did not create.
+7. **Only the crew changes the checkout.** Before each commit, compare `git status` with the files this run touched. Changes not made by the crew mean another session or person is working in the same checkout: leave them alone, never stage them, and tell the owner, suggesting that one of you works in a separate worktree.
 6. **Scale to the request.** A one-file change is one builder and no parallel step. It still gets a proposal and approval.
 
 Templates beside this file: `state-template.md` and `approval-template.md`.
@@ -30,7 +31,7 @@ Templates beside this file: `state-template.md` and `approval-template.md`.
 - **New run.**
   - Make `<slug>`: kebab-case, at most 5 words, from the request.
   - If the working tree has uncommitted changes, ask the owner first whether to commit them, stash them, or leave them out of the run, and stop.
-  - Create the branch `shipyard/<slug>` from the current HEAD and note that commit as `base`.
+  - Note the current branch (`git branch --show-current`; `detached` when empty) as `base-branch`. Create the branch `shipyard/<slug>` from the current HEAD and note that commit as `base`.
   - Write `state.md` from the template in `docs/shipyard/<slug>/`, with `stage: research`. That is the run's folder, unless the project has a change process of its own. For OpenSpec, the propose step creates `openspec/changes/<slug>/` (it refuses a folder that already exists), and the run's files then move there (stage 3).
 
 ## 1. Research
@@ -44,6 +45,9 @@ Sort the scout's `## Unclear` items, and anything you see yourself: ask the ones
 ## 3. Proposal
 
 - If the project has a process of its own (the scout's `## Project rules`), run its propose step yourself. For OpenSpec, use `/opsx:propose <slug>` through the Skill tool, or the `openspec` CLI. Then `git mv` the run's files from `docs/shipyard/<slug>/` into the new change folder, and update `folder:` in `state.md`.
+  - The `openspec` CLI rejects a name that starts with a digit. When the project numbers its changes (`NNN-name`), create the change with its plain name, then rename the folder to the next free number.
+  - When the propose command isn't available in this session, create the change with the CLI and have the planner write its files in the format of an existing change.
+  - When the change folder is ignored by git but the project already tracks files there (`git ls-files <folder>` lists some), stage the run's files with `git add -f`.
 - Dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder, whether the project has its own process, and the path to `approval-template.md`.
 - If the planner reports `## Unclear` items, go back to stage 2.
 - Read `approval.md` yourself. It must have all eight sections in order (What changes, Picture, How it fits, Crew workflow, Files, Acceptance criteria, Risks, Decisions made) and at least two `mermaid` blocks. Send any gap back to the planner.
@@ -64,7 +68,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself: ask the ones
 ## 5. Build
 
 - **Hard check first:** `approved:` is filled in. If it is empty, go to stage 4.
-- Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the run's folder, its task numbers, its owned files, and the project rules. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports.
+- Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the run's folder, its task numbers, its owned files, and the project rules. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
 - One area means one builder. Several areas mean builders dispatched in parallel, in one message.
 - When a builder reports `## Blocked`, ask the owner, then dispatch it again with the answer. A file it needs that another builder owns waits until that builder is done.
 - **A scope change** (a goal, screen or database change that is not in `approval.md`): have the planner update `approval.md`, record it under `scope-changes:`, empty `approved:`, and go to stage 4. Smaller adjustments are noted for the final summary.
@@ -91,11 +95,19 @@ Sort the scout's `## Unclear` items, and anything you see yourself: ask the ones
 3. Set `stage: done` and commit: `shipyard: finish <slug>`.
 4. Only now archive the change if the project's process does (for OpenSpec, `/opsx:archive`). The run's files move with it, and nothing is written to the old folder afterwards. Commit the archive.
 5. Push the branch if `push-ok` is `yes` or `cloud`. If it is `no`, ask once more now; finished means pushed.
-6. Reply with:
-   - the branch, and whether it is pushed
+6. **Merge and push?** Always ask the owner, with `AskUserQuestion`, whether to merge `shipyard/<slug>` and push the result. Offer:
+   - into `base-branch` (the branch the run started from), first, unless it is `main` or `detached`
+   - into `main`
+   - into another branch the owner names
+   - don't merge, leave the branch pushed
+
+   Then stop and wait. Never merge without this answer.
+7. On a branch answer: `git checkout <target>`, then `git pull --ff-only` when it has an upstream, then `git merge --no-edit shipyard/<slug>`, then `git push`. On a conflict, a failed pull or a refused push, stop: run `git merge --abort` if a merge is half done, tell the owner what happened and ask. Never force-push, and never delete `shipyard/<slug>`. Stay on the target branch afterwards, so the owner ends up where the work went.
+8. Reply with:
+   - the branch, whether it is pushed, and where it was merged (or the pull request link the push printed, when not merged)
    - what was built
    - the test command and its result
    - smaller changes made after approval
    - anything skipped, and why
 
-The owner opens the pull request. Shipyard never merges.
+Shipyard merges only into the branch the owner picks at step 6.
