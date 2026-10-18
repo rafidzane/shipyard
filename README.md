@@ -43,6 +43,16 @@ The run's state lives in the repo (`state.md` and `tasks.md` next to the proposa
 
 ## Cloud sessions (web and mobile)
 
-Cloud sessions don't load installed plugins. See below for how to make Shipyard available there.
+Cloud sessions (claude.ai/code on the web and the Claude mobile app) don't load installed plugins. To have Shipyard there, commit this hook to the project's `.claude/settings.json`. When a cloud session starts, the hook installs Shipyard; on your own machine it does nothing.
 
-_To be filled in once the cloud route is proven._
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "curl -fsSL https://raw.githubusercontent.com/rafidzane/shipyard/main/scripts/cloud-bootstrap.sh | bash" } ] }
+    ]
+  }
+}
+```
+
+_Status: not yet proven in a real cloud session. If it doesn't work, this section will describe copying Shipyard into the project's `.claude/` folder instead._
