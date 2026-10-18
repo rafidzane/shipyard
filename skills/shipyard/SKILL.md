@@ -123,7 +123,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
    - into another branch the owner names
    - don't merge, leave the branch pushed
 
-   Then stop and wait. Never merge without this answer or a `merge-to:` the owner gave.
+   Put this question last in your message, with every option listed by name, even when you also give the step 8 summary. Then stop and wait. Never merge without this answer or a `merge-to:` the owner gave.
 7. On a branch answer: `git checkout <target>`, then `git pull --ff-only` when it has an upstream, then `git merge --no-edit shipyard/<slug>`, then `git push`. On a conflict, a failed pull or a refused push, stop: run `git merge --abort` if a merge is half done, tell the owner what happened and ask. Never force-push, and never delete `shipyard/<slug>`. Stay on the target branch afterwards, so the owner ends up where the work went.
 8. Reply with:
    - the branch, whether it is pushed, and where it was merged (or the pull request link the push printed, when not merged)
