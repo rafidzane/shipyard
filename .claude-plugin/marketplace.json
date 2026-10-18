@@ -1,0 +1,16 @@
+{
+  "name": "shipyard",
+  "owner": {
+    "name": "Rafid Zane"
+  },
+  "metadata": {
+    "description": "Shipyard: a crew of agents for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "shipyard",
+      "source": "./",
+      "description": "A crew of agents that asks before it guesses, gets visual approval, then builds, tests and reviews."
+    }
+  ]
+}

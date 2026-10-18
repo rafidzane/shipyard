@@ -1,0 +1,8 @@
+{
+  "name": "shipyard",
+  "description": "A crew of agents that asks before it guesses, gets visual approval, then builds, tests and reviews.",
+  "version": "0.1.0",
+  "author": { "name": "Rafid Zane" },
+  "repository": "https://github.com/rafidzane/shipyard",
+  "license": "MIT"
+}
