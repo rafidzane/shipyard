@@ -32,8 +32,23 @@ You are the orchestrator. You run in the main session because only you can start
 A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes into each stage. **Every mode keeps** the rules above: ask on what matters, no code before approval, the project's rules, nothing left behind, and the merge question at the finish.
 
 - **Name the run's mode** in every message where you stop for the owner, for example "(deep mode)".
-- **Choosing it:** a `quick:` or `deep:` prefix on the request (strip it from the request); else a `Shipyard mode: <mode>` line in the project's `CLAUDE.md` or `AGENTS.md`; else `quick` when the request is a **small change**; else `standard`. Record it as `mode:` in `state.md`. A resumed run keeps its recorded mode.
-- **A small change** likely touches under about 50 lines in at most 3 files, and no database migration, money or calculation logic, sign-in, permissions or security. When you pick `quick` for that reason, say so in one line. When research shows a `quick` run is bigger than that, switch to `standard` before the proposal and say why.
+- **Choosing it:** a `quick:`, `standard:` or `deep:` prefix on the request (strip it from the request); else a `Shipyard mode: <mode>` line in the project's `CLAUDE.md` or `AGENTS.md`; else **size the change** and pick the mode from that. Record it as `mode:` in `state.md`. A resumed run keeps its recorded mode.
+- **Size the change** at the start, in a minute rather than a study. Read the request, then find the files it touches: with `graphify query` when the project has a graph, else with Grep and Glob on the names it mentions. Estimate four things:
+  - **files**: how many files change
+  - **lines**: roughly how many lines change
+  - **areas**: parts with no file in common, for example frontend, backend, database, docs
+  - **risk**: whether it touches a migration that changes or removes data, money or calculation logic, sign-in, permissions, security, or deleting a user's data
+- **Pick the mode from the size:**
+  - `quick` for **a small change**: under about 50 lines, at most 3 files, one area, no risk
+  - `deep` when there is any risk, or the change spans more than about 4 areas or 500 lines
+  - `standard` for everything else
+- **Pick how to run it** in that mode, the cheapest way that still covers the change:
+  - **builders**: one per area, at most 4, dispatched in parallel; one when there is a single area
+  - **models**: the agents' own (`haiku` for the scout, `sonnet` for the rest); `opus` only in `deep`, for builders and reviewers
+  - **tests**: builders run the fast checks on their own files; the test stage runs the project's full command once; add an end-to-end or browser check only when the change alters what a user does on screen, the project's rules allow test accounts, and the mode is not `quick`
+  - **waiting**: run a test suite or build that takes minutes in the background, and carry on with work that doesn't depend on it
+- **Say the sizing in one line**, in the first message where you stop for the owner, and record that line as `sizing:` in `state.md`. For example: `Sized: ~3 files, ~40 lines, 1 area, no risk → quick, 1 builder`.
+- **Re-size when the estimate was wrong.** After research and again after the proposal, compare the files, areas and risk you now know with `sizing:`. When they point to another mode or another number of builders, switch, update `sizing:`, and say why in one line. Moving to a bigger mode runs the stages it adds before approval. A mode the owner set (a prefix or the project's line) is never changed on your own: suggest it at approval instead.
 
 | Stage | `quick` | `standard` | `deep` |
 |---|---|---|---|
@@ -56,7 +71,7 @@ Templates beside this file: `state-template.md` and `approval-template.md`.
 - **Continuing:** work in the run's worktree. When the `worktree:` path in `state.md` exists and holds the branch, use it; otherwise create it with `git worktree add <path> shipyard/<slug>`, which also picks up a remote-only branch. With worktrees off, check out the branch instead. A run whose `state.md` has no `worktree:` line was started before worktrees: it carries on in the checkout, as before. Read `state.md`, `scout.md`, `approval.md` and `tasks.md`, then go to the stage named in `stage`.
 - **Check approval against the tree on every resume.** If `approved:` is empty but there are changes outside the run's folder (`git status` in the worktree, and `git diff <base>...HEAD`), stop, unless `scope-changes:` explains them (a re-approval after a scope change). Tell the owner what changed and ask what to do: approve the proposal as it stands, or set the changes aside. Setting aside means committing them to a side branch, or `git stash push -u -m "shipyard: set aside"` in the run's worktree when the owner asks for that. Never discard work: no `git checkout -- .`, `git reset --hard` or `git clean`. Do not build, and do not approve on their behalf.
 - **New run.**
-  - Set the mode (see Modes) and strip any `quick:` / `deep:` prefix from the request.
+  - Size the change and set the mode (see Modes), and strip any `quick:`, `standard:` or `deep:` prefix from the request.
   - **Merge permission given up front:** a `merge to <branch>:` part of the prefix (`merge to main:`, or with a mode, `deep, merge to main:`) means merge when clean. Strip it and record `merge-to: <branch>`. Without it, `merge-to:` stays empty and the finish asks.
   - Make `<slug>`: kebab-case, at most 5 words, from the request.
   - If the working tree has uncommitted changes: with worktrees on, they stay in the owner's checkout and are not part of the run; say so in one line and carry on. With worktrees off, ask the owner first whether to commit them, stash them, or leave them out of the run, and stop.
@@ -89,7 +104,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 - Give the owner the path to `approval.md` and a 3-line summary. When you can publish an artifact, offer `approval.md` as a page.
 - Locally (`push-ok: no`), ask once whether to push the branch so `approval.md` can be read on GitHub's mobile app. Record the answer as `push-ok: yes` or `no`, and push if yes.
-- **Suggest a mode** when the run's mode doesn't fit what the proposal touches: `deep` for a database migration, money or calculation logic, sign-in, permissions or security; `quick` for a small change (see Modes) in `standard`. Say why in one line. Switching to `deep` runs its extra research and proposal sections before approval.
+- **Suggest a mode** when the owner set the mode (a prefix or the project's line) and it doesn't fit what the proposal touches: `deep` for a database migration, money or calculation logic, sign-in, permissions or security; `quick` for a small change (see Modes) in `standard`. Say why in one line. Switching to `deep` runs its extra research and proposal sections before approval.
 - Ask the owner, with `AskUserQuestion`: approve as it stands; approve and merge into `base-branch` when clean (offer `main` too when it differs); change something; or switch mode when you suggested one. Then stop and wait. An approval with a merge target records `merge-to: <branch>`.
 - **Only a plain approval counts:** "approved", "approve", "yes, build it", "go ahead". Any approval with a change attached ("looks good, but…", "yes, and also…") is a change request:
   - send the change to the planner as a revision
@@ -102,7 +117,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 - **Hard check first:** `approved:` is filled in. If it is empty, go to stage 4.
 - Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the worktree path, the run's folder, its task numbers, its owned files, the project rules, rule 10, and `ui: yes` when it owns UI files (rule 9). In `quick`, tell it to write or update the tests for its change too. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
-- One area means one builder. Several areas mean builders dispatched in parallel, in one message. In `quick`, one builder takes every area. In `deep`, tell each builder to write its tests first, and dispatch it with `model: opus`.
+- One area means one builder. Several areas mean builders dispatched in parallel, in one message, at most 4 (see Modes). In `quick`, one builder takes every area. In `deep`, tell each builder to write its tests first, and dispatch it with `model: opus`.
 - When a builder reports `## Blocked`, ask the owner, then dispatch it again with the answer. A file it needs that another builder owns waits until that builder is done.
 - **A scope change** (a goal, screen or database change that is not in `approval.md`): have the planner update `approval.md`, record it under `scope-changes:`, empty `approved:`, and go to stage 4. Smaller adjustments are noted for the final summary.
 - Commit: `shipyard: build for <slug>`. Set `stage: test`.

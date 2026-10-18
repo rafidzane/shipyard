@@ -1,7 +1,7 @@
 {
   "name": "shipyard",
   "description": "A crew of agents that asks before it guesses, gets visual approval, then builds, tests and reviews.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": {
     "name": "Rafid Zane"
   },

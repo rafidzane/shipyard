@@ -1,0 +1,28 @@
+schema_version: "1.0"
+name: auto-size-risky
+description: Without a prefix, a change touching sign-in is sized as risky and runs in deep mode, says its sizing in one line, and still writes no code before approval.
+tags: [modes, sizing]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard make cli.py ask for a password before `hello` runs, and refuse with exit code 1 when it is wrong"
+  max_turns: 60
+  timeout_seconds: 1500
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: sizing-line
+    type: llm
+    criteria: >-
+      A message to the user gives the sizing in one line (files, lines, areas and risk, then the mode chosen), and
+      names sign-in or security as the risk.
+  - name: deep-chosen
+    type: llm
+    focus: trace
+    criteria: >-
+      The run records `mode: deep` in state.md without a deep: prefix on the request, and dispatches more than one
+      scout agent in parallel.
+  - name: no-code-yet
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "^(?![\\s\\S]*password)[\\s\\S]*$"

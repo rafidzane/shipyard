@@ -91,3 +91,5 @@ git -c user.name=Eval -c user.email=eval@example.invalid commit -qam "typo"
 echo "# owner's work in progress" >> cli.py
 SH
 } | write own-worktree "tiny-cli with a README typo and the owner's uncommitted edit to cli.py"
+
+cli | write auto-size-risky "tiny-cli"

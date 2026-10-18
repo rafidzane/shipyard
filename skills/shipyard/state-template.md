@@ -8,6 +8,7 @@ worktree: <the run's worktree path, or none when worktrees are off>
 change-number: <the reserved NNN, when the project numbers its changes>
 folder: <the run's folder>
 mode: standard
+sizing: <one line: files, lines, areas, risk → mode, builders>
 stage: research
 approved:
 push-ok: no
