@@ -7,6 +7,8 @@ A Claude Code plugin that turns a plain-words request into a pushed branch. A sm
 - It **follows your project's own rules** from `CLAUDE.md` / `AGENTS.md`: its process, test commands, version bumps, test-data rules.
 - It **finishes on a pushed branch**, `shipyard/<slug>`, then asks whether to merge and push: into the branch you started from, `main`, another branch, or not at all. It never merges without your answer, or your permission given up front: `/shipyard merge to main: …` merges when the run is clean (tests passed, review clean) and asks otherwise.
 - It has **three modes**: `/shipyard quick: …` for small changes, plain `/shipyard …` (standard), and `/shipyard deep: …` for risky ones (three scouts, a pre-mortem, tests first, three reviewers). Set a project's default with a `Shipyard mode: <mode>` line in its `CLAUDE.md`.
+- It **uses the project's knowledge graph** when there is one: with `graphify-out/graph.json` in the repo, the scout maps the change with graphify first, and the finish runs `graphify update .`.
+- **Screen work gets the design skills:** when a change touches a page, a component or an email, the planner, the UI builders and the reviewer load `frontend-design` and `design-taste-frontend` and apply what fits. The project's own design system wins. A skill that is not installed is skipped and reported.
 
 ## The run
 

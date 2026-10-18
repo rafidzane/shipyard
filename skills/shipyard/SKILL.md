@@ -16,6 +16,8 @@ You are the orchestrator. You run in the main session because only you can start
 5. **Commit at the end of every stage** on the run's branch, with messages like `shipyard: <stage> for <slug>`. Stage files by path: the run's folder and the files the builders own. Never `git add -A` or `git add .`, so none of the owner's own work is swept in. Push after every commit when `push-ok` is `yes` or `cloud`, so another device can pick the run up. Never merge without the owner's answer at the finish (stage 8), never force-push, never delete a branch you did not create.
 7. **Only the crew changes the checkout.** Before each commit, compare `git status` with the files this run touched. Changes not made by the crew mean another session or person is working in the same checkout: leave them alone, never stage them, and tell the owner, suggesting that one of you works in a separate worktree.
 6. **Scale to the request.** A one-file change is one builder and no parallel step. It still gets a proposal and approval.
+8. **Use the knowledge graph when the project has one.** When `graphify-out/graph.json` exists, the scout maps the change with `graphify query`, `graphify explain` and `graphify path` before reading files, and you run `graphify update .` at the finish (stage 8), in every mode. With no graph, or no `graphify` command, carry on without it and say so in `scout.md`.
+9. **Use the design skills for screen work.** When the change adds or alters something people see (a page, a component, a layout, an email), tell the planner, the builders that own UI files and the reviewer `ui: yes`. They then load `frontend-design` (the skill `frontend-design:frontend-design`) and `design-taste-frontend` with the Skill tool, and apply what fits the screen: the taste skill is written for landing pages and redesigns, so on dashboards, forms and data tables only its general rules apply. The project's own design system and rules (its `CLAUDE.md`, a `DESIGN.md`, existing components) win over both. When a skill is not installed, the agent says so in its report and carries on.
 
 ## Modes
 
@@ -54,7 +56,7 @@ Templates beside this file: `state-template.md` and `approval-template.md`.
 
 ## 1. Research
 
-Dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`). Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` go to every later agent. Set `stage: questions`.
+Dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`), and whether `graphify-out/graph.json` exists. Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` go to every later agent. Set `stage: questions`.
 
 ## 2. Questions
 
@@ -66,7 +68,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
   - The `openspec` CLI rejects a name that starts with a digit. When the project numbers its changes (`NNN-name`), create the change with its plain name, then rename the folder to the next free number.
   - When the propose command isn't available in this session, create the change with the CLI and have the planner write its files in the format of an existing change.
   - When the change folder is ignored by git but the project already tracks files there (`git ls-files <folder>` lists some), stage the run's files with `git add -f`.
-- Dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder, whether the project has its own process, and the path to `approval-template.md`.
+- Dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder, whether the project has its own process, the path to `approval-template.md`, and `ui: yes` when the change touches a screen (rule 9).
 - If the planner reports `## Unclear` items, go back to stage 2.
 - Give the planner the mode. Read `approval.md` yourself. It must have the sections the mode calls for, in the template's order: in `standard` and `deep`, at least two `mermaid` blocks; in `quick`, the short form. Send any gap back to the planner.
 - Set `stage: awaiting-approval` and commit: `shipyard: proposal for <slug>`.
@@ -87,7 +89,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 ## 5. Build
 
 - **Hard check first:** `approved:` is filled in. If it is empty, go to stage 4.
-- Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the run's folder, its task numbers, its owned files, and the project rules. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
+- Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the run's folder, its task numbers, its owned files, the project rules, and `ui: yes` when it owns UI files (rule 9). Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
 - One area means one builder. Several areas mean builders dispatched in parallel, in one message. In `quick`, one builder takes every area. In `deep`, tell each builder to write its tests first, and dispatch it with `model: opus`.
 - When a builder reports `## Blocked`, ask the owner, then dispatch it again with the answer. A file it needs that another builder owns waits until that builder is done.
 - **A scope change** (a goal, screen or database change that is not in `approval.md`): have the planner update `approval.md`, record it under `scope-changes:`, empty `approved:`, and go to stage 4. Smaller adjustments are noted for the final summary.
@@ -102,7 +104,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 ## 7. Review
 
-- As the mode says: in `quick`, check the diff against the acceptance criteria yourself. Otherwise dispatch `reviewer` with: the run's folder, `base`, the project rules, and its focus in `deep` (three at once).
+- As the mode says: in `quick`, check the diff against the acceptance criteria yourself. Otherwise dispatch `reviewer` with: the run's folder, `base`, the project rules, `ui: yes` when the diff touches a screen (rule 9), and its focus in `deep` (three at once).
 - `critical` problems go back to the owning builders, then to the tester again. After 2 rounds, ask the owner.
 - `## Scope changes` go to stage 4, as in stage 5.
 - Warnings you leave are listed in the final summary.
@@ -111,7 +113,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 ## 8. Finish
 
-1. Run the project's closing steps from its rules, for example a version bump or ticking `tasks.md`.
+1. Run the project's closing steps from its rules, for example a version bump or ticking `tasks.md`. When `graphify-out/graph.json` exists, run `graphify update .` (rule 8); commit what it changes only if the project tracks `graphify-out/`.
 2. Check that nothing the run made for testing is left behind (test users, test data, temporary files, extra branches), as the project's rules define it.
 3. Set `stage: done` and commit: `shipyard: finish <slug>`.
 4. Only now archive the change if the project's process does (for OpenSpec, `/opsx:archive`). The run's files move with it, and nothing is written to the old folder afterwards. Commit the archive.
