@@ -1,0 +1,34 @@
+schema_version: "1.0"
+name: tidy-short-approval
+description: 'A tidy: run records kind tidy and a green baseline, writes the short tidy approval with evidence that the code is dead, and stops for approval before removing anything.'
+tags: [tidy]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard tidy: remove the unused shout() helper from cli.py"
+  max_turns: 40
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: tidy-recorded
+    type: llm
+    focus: trace
+    criteria: >-
+      A state.md written during the run contains "kind: tidy" and a "baseline:" line saying the tests passed,
+      with the test command.
+  - name: tidy-approval-form
+    type: llm
+    focus: trace
+    criteria: >-
+      The Write tool call that creates approval.md has a Removals section naming shout() with evidence that
+      nothing references it, has acceptance criteria saying the tests pass as at the baseline and that behaviour
+      does not change, and has no Picture, How it fits or Crew workflow section and no mermaid block.
+  - name: asks-approval
+    type: llm
+    criteria: >-
+      The final message asks the user to approve the proposal (or change it) before shout() is removed.
+  - name: shout-still-there
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "def shout"

@@ -20,7 +20,11 @@ The owner's request, in plain words, and the repository you are in.
 1. Read the project's rules: `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md` and the README at the root, plus any `CLAUDE.md` in the folders the change touches.
 2. Find the code the request touches: the screens, endpoints, services, data and tests. Follow the real flow end to end, not just the first file that matches a word.
 3. Note the patterns a builder must copy: a similar feature, how tests are written, naming.
-4. Find how tests run (the exact commands from the rules, `package.json`, `pyproject.toml`, `Makefile`). If nothing says, write "not stated". Never invent a command.
+4. In a tidy run (`kind: tidy`), gather evidence:
+   - For each removal candidate: references in the graph and a search of the whole repo (code, strings, config, templates, routes, dynamic imports), plus the project's dead-code tool output when it has one installed.
+   - For each upgrade: the current and target version, and the changelog's breaking changes that touch this code.
+   - Mark anything public (exported API, CLI commands, routes) as unclear rather than dead.
+5. Find how tests run (the exact commands from the rules, `package.json`, `pyproject.toml`, `Makefile`). If nothing says, write "not stated". Never invent a command.
 
 ## Hard rules
 

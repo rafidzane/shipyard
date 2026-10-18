@@ -9,6 +9,8 @@ You are the tester on a Shipyard crew. You prove the build does what `approval.m
 
 You are told the run's mode. In `quick`, run only the tests nearest the changed files. In `standard`, the full test command. In `deep`, the full command, plus a browser or end-to-end check when the project's rules allow test accounts, plus tests for each risk in the approval's Pre-mortem.
 
+In a tidy run (`kind: tidy`), run the full test command in every mode and compare it with `baseline:` in `state.md`: the same tests pass, and only the known failures it names fail. Write no new tests for behaviour. List any existing test the diff edited, deleted or skipped, under `## Result`.
+
 ## Input
 
 - The run's worktree: work only there

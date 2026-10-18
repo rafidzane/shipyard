@@ -1,9 +1,16 @@
 # Approval: <slug>
 
-<!-- quick: only What changes, Picture, Files, Acceptance criteria, Decisions made. standard: the eight sections. deep: the eight plus the three at the end. -->
+<!-- quick: only What changes, Picture, Files, Acceptance criteria, Decisions made. standard: the eight sections. deep: the eight plus the three at the end.
+     tidy (any mode): What changes, Removals and/or Upgrades, Files, Acceptance criteria, Decisions made; deep adds Pre-mortem. No Picture, no diagrams. -->
 
 ## What changes
 <3 to 6 plain sentences: what the owner will see or get, and what stays the same.>
+
+## Removals
+<tidy only: one line per thing removed: `path:symbol` — the evidence it is dead (no references in the graph or a repo-wide search of code, strings, config and routes; the dead-code tool's output when the project has one). A public entry point goes under Decisions made as a question, not here.>
+
+## Upgrades
+<tidy only: one line per dependency: name from → to, the changelog's breaking changes that touch this code, and the lockfile change.>
 
 ## Picture
 ```text
@@ -28,6 +35,7 @@ flowchart LR
 
 ## Acceptance criteria
 - [ ] <something a person can check, one per line>
+<tidy: always include "the full test command passes, same as the baseline" and "no behaviour change".>
 
 ## Risks
 - <what could go wrong, and how the change guards against it; "None worth noting" when that is true>

@@ -1,6 +1,6 @@
 ---
 name: shipyard
-description: Runs a crew of agents (scout, planner, builders, tester, reviewer) that turns a plain-words request into a pushed branch. Asks the owner at every unclear point, gets approval of a visual proposal before any code, then builds, tests and reviews. Use for "/shipyard <request>", "build this with the crew", or to continue or answer a Shipyard run already in progress.
+description: Runs a crew of agents (scout, planner, builders, tester, reviewer) that turns a plain-words request into a pushed branch. Asks the owner at every unclear point, gets approval of a visual proposal before any code, then builds, tests and reviews. Use for "/shipyard <request>", "/shipyard tidy: <cleanup or upgrade>", "build this with the crew", or to continue or answer a Shipyard run already in progress.
 ---
 
 # Shipyard
@@ -61,6 +61,30 @@ A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes 
 
 Templates beside this file: `state-template.md` and `approval-template.md`.
 
+## Tidy runs
+
+A tidy run cleans up: it removes dead code, refactors, or upgrades a dependency, and **changes no behaviour**. It is a kind of run, not a mode. Sizing still picks `quick`, `standard` or `deep` for the effort, and the tidy rules below come on top of that mode's. Record `kind: tidy` in `state.md` (`kind: feature` for every other run).
+
+- **Choosing it:** `tidy` in the prefix: `tidy:`, `tidy, deep:`, `tidy, merge to main:`. When a plain request is clearly only cleanup or an upgrade ("remove dead code", "upgrade next to 17", "split this file"), suggest a tidy run in one line at stage 2 and ask. Never switch on your own.
+- **No behaviour changes.** Same inputs give the same outputs, screens, API responses and stored data.
+  - Allowed: deleting code nothing reaches; renaming, moving and splitting inside the code; swapping a hand-rolled helper for an equal one; upgrading a dependency with the edits the upgrade forces.
+  - Not allowed: new features, bug fixes (a bug found is listed for the owner, not fixed), changed defaults or messages, database migrations.
+  - Anything that would need one of those is a scope change: stop, ask, and offer to finish it as a normal run.
+- **Tests stay green throughout.**
+  - **Baseline first.** At the end of research, before any proposal, run the project's full test command in the worktree and record `baseline: passed — <command>`. The tree is unchanged until the build, so this is the baseline the build is held to. When it fails, stop and ask the owner: fix the red tests in a separate run first, or name them as known failures (recorded under `baseline:`; they must fail the same way at the end, and nothing else may fail). With no test command, ask for one: a tidy run never starts without tests.
+  - **Small steps.** `tasks.md` has one step per task: one thing removed, one file split, one dependency upgraded. Each step can be checked on its own.
+  - **Green after every step.** The builder runs the tests covering each step as soon as it is done. After the build, the full command runs again and must match the baseline.
+  - **A red step is undone, and the run carries on.** The builder undoes its own edits for that step and reports it under `## Skipped`, with the failure, then moves to the next step. Record skipped steps under `skipped:` in `state.md`. When later steps depend on a skipped one (an upgrade that can't go green), stop and ask.
+- **Tests are the referee.** Builders don't edit existing tests. There are two exceptions, both listed in their report: deleting a test whose only subject was removed dead code, and a mechanical edit an upgrade forces (an import path, a renamed API). A test that is weakened, skipped or loosened is a critical problem.
+- **Dead means proven dead.** Each removal in `approval.md` names its evidence:
+  - no references in the graph, or in a search of the whole repo: strings, dynamic imports, config, templates, routes
+  - the project's dead-code tool (knip, ts-prune, vulture and the like), when it has one
+  - Public entry points (an exported API, CLI commands, routes, anything another repo may import) aren't dead just because this repo doesn't call them. List each one as a question for the owner.
+- **Upgrades name the jump.** For each dependency: from → to, the breaking changes in its changelog that touch this code, and the lockfile change. One dependency per step. A major version of a framework sizes as `deep`.
+- **The short approval.** Every tidy run uses the short tidy form of `approval.md`, whatever its mode (see `approval-template.md`), with no Picture and no diagrams; `deep` adds Pre-mortem. Its acceptance criteria always include "the full test command passes, same as the baseline" and "no behaviour change".
+- **Review checks the promise.** Any behaviour change, and any edited test outside the two exceptions, is critical.
+- **The project's rules still decide** version bumps and changelogs. A tidy run usually changes nothing the running app does, but a dependency upgrade changes what ships, so follow the project's own wording.
+
 ## Starting or resuming
 
 - Cloud session: the environment variable `CLAUDE_CODE_REMOTE` is `true` (check with `echo "$CLAUDE_CODE_REMOTE"`). There, `push-ok` is `cloud`, and the branch is pushed at every commit.
@@ -71,7 +95,7 @@ Templates beside this file: `state-template.md` and `approval-template.md`.
 - **Continuing:** work in the run's worktree. When the `worktree:` path in `state.md` exists and holds the branch, use it; otherwise create it with `git worktree add <path> shipyard/<slug>`, which also picks up a remote-only branch. With worktrees off, check out the branch instead. A run whose `state.md` has no `worktree:` line was started before worktrees: it carries on in the checkout, as before. Read `state.md`, `scout.md`, `approval.md` and `tasks.md`, then go to the stage named in `stage`.
 - **Check approval against the tree on every resume.** If `approved:` is empty but there are changes outside the run's folder (`git status` in the worktree, and `git diff <base>...HEAD`), stop, unless `scope-changes:` explains them (a re-approval after a scope change). Tell the owner what changed and ask what to do: approve the proposal as it stands, or set the changes aside. Setting aside means committing them to a side branch, or `git stash push -u -m "shipyard: set aside"` in the run's worktree when the owner asks for that. Never discard work: no `git checkout -- .`, `git reset --hard` or `git clean`. Do not build, and do not approve on their behalf.
 - **New run.**
-  - Size the change and set the mode (see Modes), and strip any `quick:`, `standard:` or `deep:` prefix from the request.
+  - Size the change and set the mode (see Modes), and strip any `quick:`, `standard:` or `deep:` prefix from the request. A `tidy` in the prefix sets `kind: tidy` (see Tidy runs); strip it too.
   - **Merge permission given up front:** a `merge to <branch>:` part of the prefix (`merge to main:`, or with a mode, `deep, merge to main:`) means merge when clean. Strip it and record `merge-to: <branch>`. Without it, `merge-to:` stays empty and the finish asks.
   - Make `<slug>`: kebab-case, at most 5 words, from the request.
   - If the working tree has uncommitted changes: with worktrees on, they stay in the owner's checkout and are not part of the run; say so in one line and carry on. With worktrees off, ask the owner first whether to commit them, stash them, or leave them out of the run, and stop.
@@ -82,11 +106,11 @@ Templates beside this file: `state-template.md` and `approval-template.md`.
 
 ## 1. Research
 
-In `quick`, do the research yourself (see Modes). Otherwise dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`), the worktree path, rule 10, and whether `graphify-out/graph.json` exists. Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` go to every later agent. Set `stage: questions`.
+In `quick`, do the research yourself (see Modes). Otherwise dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`), the worktree path, rule 10, whether `graphify-out/graph.json` exists, and `kind: tidy` in a tidy run (in `quick`, gather the tidy evidence yourself). Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` go to every later agent. In a tidy run, run the baseline now (see Tidy runs); a red one is the first question at stage 2. Set `stage: questions`.
 
 ## 2. Questions
 
-Sort the scout's `## Unclear` items, and anything you see yourself, as the mode says: ask the ones whose wrong guess would change what the owner gets; settle the rest yourself and pass them to the planner as decisions to list. When nothing needs asking, skip straight to stage 3 in the same turn. Always ask how to run tests when the scout found no stated test command. Record each open question under `open-questions:` in `state.md`, then ask and stop. Write each answer under `answers:` in `state.md` as it comes back. When the answers come back, ask any follow-ups they raise. Move on only when nothing that matters is unclear. Set `stage: proposal`.
+Sort the scout's `## Unclear` items, and anything you see yourself, as the mode says: ask the ones whose wrong guess would change what the owner gets; settle the rest yourself and pass them to the planner as decisions to list. When nothing needs asking, skip straight to stage 3 in the same turn. Always ask how to run tests when the scout found no stated test command. In a `feature` run whose request is clearly only cleanup or an upgrade, suggest a tidy run here (see Tidy runs). Record each open question under `open-questions:` in `state.md`, then ask and stop. Write each answer under `answers:` in `state.md` as it comes back. When the answers come back, ask any follow-ups they raise. Move on only when nothing that matters is unclear. Set `stage: proposal`.
 
 ## 3. Proposal
 
@@ -95,6 +119,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
   - At archive, OpenSpec applies a `## MODIFIED Requirements` block only when its header matches a requirement in the main spec word for word. A requirement the main spec doesn't have yet goes under `## ADDED Requirements`.
   - When the propose command isn't available in this session, create the change with the CLI and have the planner write its files in the format of an existing change.
   - When the change folder is ignored by git but the project already tracks files there (`git ls-files <folder>` lists some), stage the run's files with `git add -f`.
+- In a tidy run, `approval.md` takes the tidy form in every mode, and `tasks.md` has one step per task (see Tidy runs). Give the planner `kind: tidy`.
 - In `quick`, write the short `approval.md` (from `approval-template.md`) and `tasks.md` yourself. Otherwise dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder in the worktree, whether the project has its own process, the path to `approval-template.md`, and `ui: yes` when the change touches a screen (rule 9).
 - If the planner reports `## Unclear` items, go back to stage 2.
 - Give the planner the mode. Read `approval.md` yourself. It must have the sections the mode calls for, in the template's order: in `standard` and `deep`, at least two `mermaid` blocks; in `quick`, the short form. Send any gap back to the planner.
@@ -116,6 +141,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 ## 5. Build
 
 - **Hard check first:** `approved:` is filled in. If it is empty, go to stage 4.
+- **Tidy runs:** `baseline:` must read `passed` (or name the owner's known failures); otherwise go back to stage 1. Give each builder `kind: tidy`. Record each `## Skipped` step a builder reports under `skipped:`, and leave its task unticked.
 - Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the worktree path, the run's folder, its task numbers, its owned files, the project rules, rule 10, and `ui: yes` when it owns UI files (rule 9). In `quick`, tell it to write or update the tests for its change too. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
 - One area means one builder. Several areas mean builders dispatched in parallel, in one message, at most 4 (see Modes). In `quick`, one builder takes every area. In `deep`, tell each builder to write its tests first, and dispatch it with `model: opus`.
 - When a builder reports `## Blocked`, ask the owner, then dispatch it again with the answer. A file it needs that another builder owns waits until that builder is done.
@@ -127,11 +153,12 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 - In `quick`, run the tests nearest the change yourself, in the worktree. Otherwise dispatch `tester` with: the worktree path, the run's folder, the mode, the project's test commands and test-data rules, rule 10, and the files the builders changed.
 - When it reports `## Could not fix`, send that failure to the builder that owns the file, once, and test again. If it still fails, ask the owner.
 - Record the result in `state.md` as `tests: passed — <command>` or `tests: failed — <command> (<what failed>)`.
+- In a tidy run, the full command runs in every mode, `quick` too, and passes only when it matches `baseline:`. Give the tester `kind: tidy`.
 - Commit: `shipyard: tests for <slug>`. Set `stage: review`.
 
 ## 7. Review
 
-- As the mode says: in `quick`, check the diff against the acceptance criteria yourself. Otherwise dispatch `reviewer` with: the worktree path, the run's folder, `base`, the project rules, `ui: yes` when the diff touches a screen (rule 9), and its focus in `deep` (three at once).
+- As the mode says: in `quick`, check the diff against the acceptance criteria yourself. Otherwise dispatch `reviewer` with: the worktree path, the run's folder, `base`, the project rules, `ui: yes` when the diff touches a screen (rule 9), and its focus in `deep` (three at once), and `kind: tidy` in a tidy run.
 - `critical` problems go back to the owning builders, then to the tester again. After 2 rounds, ask the owner.
 - `## Scope changes` go to stage 4, as in stage 5.
 - Warnings you leave are listed in the final summary.
@@ -164,6 +191,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
    - what was built
    - the test command and its result
    - smaller changes made after approval
+   - in a tidy run: the baseline and the final test result side by side, and every step under `skipped:` with why
    - anything skipped, and why
 
 Shipyard merges only into a branch the owner picked: up front (`merge-to:`), at approval, or at step 6.

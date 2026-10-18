@@ -1,0 +1,33 @@
+schema_version: "1.0"
+name: tidy-red-baseline
+description: 'A tidy: run whose tests are already red stops before any proposal, says which test fails, and asks how to go on.'
+tags: [tidy]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard tidy: remove the unused shout() helper from cli.py"
+  max_turns: 40
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: ran-baseline
+    type: llm
+    focus: trace
+    criteria: >-
+      The run executes the project's test command (python -m pytest) before writing any approval.md.
+  - name: stops-on-red
+    type: llm
+    criteria: >-
+      The final message tells the user the tests are already failing (naming test_usage_exit_code or the usage
+      exit code) and asks how to proceed, for example fixing it first or treating it as a known failure, instead of
+      proposing or making the removal.
+  - name: no-approval-written
+    type: llm
+    focus: trace
+    criteria: >-
+      No approval.md is written during the run.
+  - name: shout-still-there
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "def shout"

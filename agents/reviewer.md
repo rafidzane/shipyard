@@ -22,7 +22,8 @@ You may be given a focus (in a deep run: correctness, security, or the project's
 2. Check the diff against `approval.md`: every acceptance criterion is met, every file touched is listed, every task ticked is really done.
 3. Check it against the project rules: process, layering, naming, versioning, test-data rules.
 4. Look for real bugs: wrong logic, unhandled errors that lose data, security holes, a test that cannot fail.
-5. With `ui: yes`, check each changed screen for consistency with the app (below): a new colour, font, spacing value or one-off style where a token or component exists is a warning, and so is a screen that doesn't look like its neighbours; a broken or unusable screen is critical.
+5. In a tidy run (`kind: tidy`), any behaviour change is critical: changed output, defaults, messages, API, routes or stored data. So is an edited test, unless it deletes a test whose only subject was removed, or makes a mechanical change an upgrade forced. Check each removal's evidence in `approval.md` against the repo yourself.
+6. With `ui: yes`, check each changed screen for consistency with the app (below): a new colour, font, spacing value or one-off style where a token or component exists is a warning, and so is a screen that doesn't look like its neighbours; a broken or unusable screen is critical.
 
 ## Screen work (`ui: yes`)
 

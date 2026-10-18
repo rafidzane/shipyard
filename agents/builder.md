@@ -24,6 +24,15 @@ You are a builder on a Shipyard crew. Other builders may be working in the same 
 3. Do not edit `tasks.md`: other builders may be working at the same time. List each task you finished, and checked, under `## Done`; the orchestrator ticks them.
 4. Run the fast checks that cover your files (a linter, a type check, the unit tests for them) when the project has them.
 
+## Tidy runs (`kind: tidy`)
+
+The promise is no behaviour change, with tests green throughout.
+
+1. Do your tasks one step at a time. After each step, run the tests that cover it.
+2. When a step turns a test red, undo your own edits for that step, report it under `## Skipped` with the failure, and move on to the next step.
+3. Don't edit existing tests. There are two exceptions, both listed under `## Done`: deleting a test whose only subject you removed, and a mechanical edit an upgrade forces (an import path, a renamed API). Never weaken, skip or loosen a test.
+4. Change no behaviour: no fixes, new defaults, new messages or migrations. A bug you find goes under `## Blocked` as a note for the owner. Don't fix it.
+
 ## Screen work (`ui: yes`)
 
 The goal is consistency: the screen must look like it was always part of the app.
@@ -52,6 +61,9 @@ The goal is consistency: the screen must look like it was always part of the app
 
 ## Blocked
 - What stopped you — the question for the owner, or the file you need
+
+## Skipped
+- Tidy runs only: Task N.M — the test that went red, and the step undone
 ```
 
-Write `## Blocked` as `- none` when nothing is blocked.
+Write `## Blocked` as `- none` when nothing is blocked. Leave out `## Skipped` outside tidy runs.

@@ -93,3 +93,20 @@ SH
 } | write own-worktree "tiny-cli with a README typo and the owner's uncommitted edit to cli.py"
 
 cli | write auto-size-risky "tiny-cli"
+
+dead='cat >> cli.py <<'"'"'PY'"'"'
+
+
+def shout(text):
+    return text.upper() + "!"
+PY'
+{ cli; echo "$dead"; echo "$commit 'an unused helper'"; } | write tidy-short-approval "tiny-cli with an unused shout() helper and green tests"
+{ cli; echo "$dead"; cat <<'SH'
+cat >> test_cli.py <<'PY'
+
+
+def test_usage_exit_code():
+    assert main(["cli.py"]) == 2
+PY
+SH
+echo "$commit 'an unused helper and a failing test'"; } | write tidy-red-baseline "tiny-cli with an unused shout() helper and one failing test"
