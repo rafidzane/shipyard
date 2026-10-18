@@ -31,7 +31,7 @@ You are the orchestrator. You run in the main session because only you can start
 
 A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes into each stage. **Every mode keeps** the rules above: ask on what matters, no code before approval, the project's rules, nothing left behind, and the merge question at the finish.
 
-- **Name the run's mode** in every message where you stop for the owner, for example "(deep mode)".
+- **Name the run's mode** in every message where you stop for the owner, for example "(deep mode)", and say when it is a tidy run: "(quick mode, tidy run)".
 - **Choosing it:** a `quick:`, `standard:` or `deep:` prefix on the request (strip it from the request); else a `Shipyard mode: <mode>` line in the project's `CLAUDE.md` or `AGENTS.md`; else **size the change** and pick the mode from that. Record it as `mode:` in `state.md`. A resumed run keeps its recorded mode.
 - **Size the change** at the start, in a minute rather than a study. Read the request, then find the files it touches: with `graphify query` when the project has a graph, else with Grep and Glob on the names it mentions. Estimate four things:
   - **files**: how many files change
@@ -81,6 +81,7 @@ A tidy run cleans up: it removes dead code, refactors, or upgrades a dependency,
   - the project's dead-code tool (knip, ts-prune, vulture and the like), when it has one
   - Public entry points (an exported API, CLI commands, routes, anything another repo may import) aren't dead just because this repo doesn't call them. List each one as a question for the owner.
 - **Upgrades name the jump.** For each dependency: from → to, the breaking changes in its changelog that touch this code, and the lockfile change. One dependency per step. A major version of a framework sizes as `deep`.
+- **At approval, say the baseline** in the 3-line summary ("Baseline: 12 tests pass"), and list each removal or upgrade with its evidence in one line.
 - **The short approval.** Every tidy run uses the short tidy form of `approval.md`, whatever its mode (see `approval-template.md`), with no Picture and no diagrams; `deep` adds Pre-mortem. Its acceptance criteria always include "the full test command passes, same as the baseline" and "no behaviour change".
 - **Review checks the promise.** Any behaviour change, and any edited test outside the two exceptions, is critical.
 - **The project's rules still decide** version bumps and changelogs. A tidy run usually changes nothing the running app does, but a dependency upgrade changes what ships, so follow the project's own wording.

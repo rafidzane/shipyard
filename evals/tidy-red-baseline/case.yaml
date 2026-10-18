@@ -15,7 +15,7 @@ graders:
     type: llm
     focus: trace
     criteria: >-
-      The run executes the project's test command (python -m pytest) before writing any approval.md.
+      The run executes the project's test command (python3 -m unittest) before writing any approval.md.
   - name: stops-on-red
     type: llm
     criteria: >-

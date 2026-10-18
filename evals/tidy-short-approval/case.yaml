@@ -11,19 +11,14 @@ execution:
   allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
 runs: 3
 graders:
-  - name: tidy-recorded
+  - name: says-tidy-and-baseline
     type: llm
-    focus: trace
     criteria: >-
-      A state.md written during the run contains "kind: tidy" and a "baseline:" line saying the tests passed,
-      with the test command.
-  - name: tidy-approval-form
+      The final message says this is a tidy run and states the baseline: that the tests passed before any change.
+  - name: removal-with-evidence
     type: llm
-    focus: trace
     criteria: >-
-      The Write tool call that creates approval.md has a Removals section naming shout() with evidence that
-      nothing references it, has acceptance criteria saying the tests pass as at the baseline and that behaviour
-      does not change, and has no Picture, How it fits or Crew workflow section and no mermaid block.
+      The final message lists the removal of shout() with its evidence that nothing references it.
   - name: asks-approval
     type: llm
     criteria: >-

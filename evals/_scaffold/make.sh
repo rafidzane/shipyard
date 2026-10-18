@@ -94,19 +94,33 @@ SH
 
 cli | write auto-size-risky "tiny-cli"
 
+# The tidy cases need a test command that runs with no install (the eval sandbox has no pytest and no network)
+unit='cat > test_cli.py <<'"'"'PY'"'"'
+import io
+import unittest
+from contextlib import redirect_stdout
+
+from cli import main
+
+
+class CliTest(unittest.TestCase):
+    def test_hello(self):
+        out = io.StringIO()
+        with redirect_stdout(out):
+            self.assertEqual(main(["cli.py", "hello"]), 0)
+        self.assertEqual(out.getvalue(), "hello\n")
+PY
+sed -i "s/python -m pytest -q/python3 -m unittest -q/" CLAUDE.md'
 dead='cat >> cli.py <<'"'"'PY'"'"'
 
 
 def shout(text):
     return text.upper() + "!"
 PY'
-{ cli; echo "$dead"; echo "$commit 'an unused helper'"; } | write tidy-short-approval "tiny-cli with an unused shout() helper and green tests"
-{ cli; echo "$dead"; cat <<'SH'
-cat >> test_cli.py <<'PY'
+red='cat >> test_cli.py <<'"'"'PY'"'"'
 
-
-def test_usage_exit_code():
-    assert main(["cli.py"]) == 2
-PY
-SH
-echo "$commit 'an unused helper and a failing test'"; } | write tidy-red-baseline "tiny-cli with an unused shout() helper and one failing test"
+    def test_usage_exit_code(self):
+        self.assertEqual(main(["cli.py"]), 2)
+PY'
+{ cli; echo "$unit"; echo "$dead"; echo "$commit 'an unused helper'"; } | write tidy-short-approval "tiny-cli (unittest) with an unused shout() helper and green tests"
+{ cli; echo "$unit"; echo "$dead"; echo "$red"; echo "$commit 'an unused helper and a failing test'"; } | write tidy-red-baseline "tiny-cli (unittest) with an unused shout() helper and one failing test"
