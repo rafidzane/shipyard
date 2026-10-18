@@ -26,3 +26,15 @@ sed -i 's/A small command line tool./A small command line tool for teh terminal.
 git -c user.name=Eval -c user.email=eval@example.invalid commit -qam "typo"
 SH
 } | write tiny-change "tiny-cli with a typo in its README"
+
+{ cli; echo 'git checkout -qb shipyard/add-version-flag'; run awaiting-approval; echo "$commit 'shipyard: proposal for add-version-flag'"
+  cat <<'SH'
+# The run lives only on the remote, as when it was started on another device; this checkout is on main
+git init -q --bare .remote.git && mkdir -p .git/info && echo .remote.git >> .git/info/exclude
+git remote add origin "$PWD/.remote.git"
+git push -q origin main shipyard/add-version-flag
+git checkout -q main && git branch -qD shipyard/add-version-flag
+SH
+} | write resume-from-remote "tiny-cli on main; a run awaiting approval exists only on origin/shipyard/add-version-flag"
+{ cli; echo 'git checkout -qb shipyard/add-version-flag'; run awaiting-approval; echo "$commit 'shipyard: proposal for add-version-flag'"; } \
+  | write new-request-open-run "tiny-cli with a Shipyard run waiting for approval on its branch"

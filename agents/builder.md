@@ -19,7 +19,7 @@ You are a builder on a Shipyard crew. Other builders may be working in the same 
 
 1. Read `approval.md`, your tasks and the files you own, and the patterns the rules point to.
 2. Do your tasks, in order. Follow the project's rules and the code around you: its naming, its comment style, its idioms.
-3. Tick each task (`- [x]`) in `tasks.md` as soon as it is done and checked.
+3. Do not edit `tasks.md`: other builders may be working at the same time. List each task you finished, and checked, under `## Done`; the orchestrator ticks them.
 4. Run the fast checks that cover your files (a linter, a type check, the unit tests for them) when the project has them.
 
 ## Hard rules

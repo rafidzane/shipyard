@@ -49,7 +49,7 @@ Cloud sessions (claude.ai/code on the web and the Claude mobile app) don't load 
 {
   "hooks": {
     "SessionStart": [
-      { "hooks": [ { "type": "command", "command": "curl -fsSL https://raw.githubusercontent.com/rafidzane/shipyard/main/scripts/cloud-bootstrap.sh | bash" } ] }
+      { "hooks": [ { "type": "command", "command": "case $CLAUDE_CODE_REMOTE in true) claude plugin marketplace add rafidzane/shipyard >&2; claude plugin install shipyard@shipyard --scope user >&2;; esac; exit 0" } ] }
     ]
   }
 }

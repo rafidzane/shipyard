@@ -1,0 +1,32 @@
+schema_version: "1.0"
+name: new-request-open-run
+description: A new request while another run awaits approval is not taken as a reply to that run.
+tags: [resume]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard add a goodbye command that prints goodbye"
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: not-a-reply
+    type: llm
+    focus: trace
+    criteria: >-
+      The agent notices the unfinished run add-version-flag and does not treat "add a goodbye command" as an
+      approval of or change to that run. It either asks the owner whether this is a new run or a change to the
+      open one, or clearly starts a separate new run for the goodbye command. It does not add goodbye to the
+      add-version-flag approval.md.
+  - name: open-run-untouched
+    type: regex
+    target: {source: file, path: docs/shipyard/add-version-flag/approval.md}
+    pattern: "goodbye"
+    flags: i
+    match: not_contains
+  - name: open-run-not-approved
+    type: regex
+    target: {source: file, path: docs/shipyard/add-version-flag/state.md}
+    pattern: "^approved:[ \\t]*$"
+    flags: m
