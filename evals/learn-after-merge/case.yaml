@@ -1,0 +1,25 @@
+schema_version: "1.0"
+name: learn-after-merge
+description: "A new run first follows up an earlier merged run: a later fix on its lines fills in its scorecard row's missed-after-merge and adds an incident citing the fix."
+tags: [learn]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard quick: fix the typo \"teh\" in README.md"
+  max_turns: 40
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: row-filled-in
+    type: regex
+    target: {source: file, path: docs/shipyard/memory/scorecard.md}
+    pattern: "\\|\\s*add-version-flag\\s*\\|(?:[^|\\n]*\\|){8}\\s*1\\s*\\|"
+  - name: incident-cites-the-fix
+    type: regex
+    target: {source: file, path: docs/shipyard/memory/incidents.md}
+    pattern: "I-\\d+ .*add-version-flag"
+  - name: still-asks-approval
+    type: llm
+    criteria: >-
+      The final message asks the user to approve the typo fix (or change it); the typo is not fixed without approval.

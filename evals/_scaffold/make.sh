@@ -217,3 +217,52 @@ def count(n):
 PY'
 { echo "$shop"; echo "$plural"; echo "$commit 'tiny-shop with text.plural'"; } | write challenge-simpler "tiny-shop: text.plural() already words a count"
 { echo "$shop"; echo "$nodeps"; echo "$commit 'tiny-shop, standard library only'"; } | write challenge-history "tiny-shop whose memory says standard library only"
+
+# Learn (1.0.0)
+{ cli; echo 'git checkout -qb shipyard/add-version-flag'; run finish; echo "$commit 'shipyard: proposal for add-version-flag'"
+  cat <<'SH'
+d=docs/shipyard/add-version-flag
+sed -i "s/^approved:.*/approved: 2026-10-18 — add --version as proposed/" "$d/state.md"
+cat >> "$d/state.md" <<'MD'
+mode: quick
+sizing: Sized: 2 files, ~10 lines, 1 area, no risk → quick, 1 builder
+tests: passed — python -m pytest -q
+review: clean
+predictions:
+- R-1 low: hello stops working — held
+- R-2 medium: --version prints a trailing newline from VERSION — caught (strip added, test_version checks it)
+- R-x missed: running cli.py with no arguments crashed with IndexError, found in review and fixed
+MD
+sed -i 's/- \[ \]/- [x]/' "$d/tasks.md"
+sed -i 's/    if argv\[1:\] == \["hello"\]:/    if argv[1:] == ["--version"]:\n        print(open("VERSION").read().strip())\n        return 0\n    if argv[1:] == ["hello"]:/' cli.py
+printf '\ndef test_version(capsys):\n    assert main(["cli.py", "--version"]) == 0\n    assert capsys.readouterr().out == "0.3.0\\n"\n' >> test_cli.py
+mkdir -p docs/shipyard/memory
+git add -A && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm 'shipyard: build, tests and review for add-version-flag'
+SH
+} | write learn-scores-finish "tiny-cli with a finished run whose predictions are held, caught and missed"
+
+{ cli; cat <<'SH'
+echo "- Shipyard worktree: no" >> CLAUDE.md
+git -c user.name=Eval -c user.email=eval@example.invalid commit -qam "no worktrees"
+# An earlier Shipyard run, merged into main two days ago, whose row is still open
+git checkout -qb shipyard/add-version-flag
+sed -i 's/    if argv\[1:\] == \["hello"\]:/    if argv[1:] == ["--version"]:\n        print(open("VERSION").read())\n        return 0\n    if argv[1:] == ["hello"]:/' cli.py
+mkdir -p docs/shipyard/memory
+cat > docs/shipyard/memory/scorecard.md <<'MD'
+# Scorecard
+
+Written by Shipyard. Not enough runs yet.
+
+| Run | Finished | Mode | Sized | Actual | Predicted | Caught | Held | Missed in run | Missed after merge | Challenges that changed the plan |
+|---|---|---|---|---|---|---|---|---|---|---|
+| add-version-flag | 2026-10-17 | quick | 1 file, 1 area | 1 file, 1 area | 1 | 0 | 1 | 0 | open | 0 of 1 |
+MD
+git add -A && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm "shipyard: finish add-version-flag"
+git checkout -q main && git -c user.name=Eval -c user.email=eval@example.invalid merge -q --no-ff --no-edit shipyard/add-version-flag
+# A fix to the same lines after the merge: the run missed it
+sed -i 's/        print(open("VERSION").read())/        print(open("VERSION").read().strip())/' cli.py
+git -c user.name=Eval -c user.email=eval@example.invalid commit -qam "fix: --version printed an extra blank line"
+sed -i 's/A small command line tool./A small command line tool for teh terminal./' README.md
+git -c user.name=Eval -c user.email=eval@example.invalid commit -qam "typo"
+SH
+} | write learn-after-merge "tiny-cli, worktrees off: a merged Shipyard run later fixed on its lines, its scorecard row still open"
