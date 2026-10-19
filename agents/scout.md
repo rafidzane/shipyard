@@ -25,7 +25,11 @@ The owner's request, in plain words, and the repository you are in.
    - For each removal candidate: references in the graph and a search of the whole repo (code, strings, config, templates, routes, dynamic imports), plus the project's dead-code tool output when it has one installed.
    - For each upgrade: the current and target version, and the changelog's breaking changes that touch this code.
    - Mark anything public (exported API, CLI commands, routes) as unclear rather than dead.
-5. Find how tests run (the exact commands from the rules, `package.json`, `pyproject.toml`, `Makefile`). If nothing says, write "not stated". Never invent a command.
+5. Map the change's reach, for the forecast of what could regress:
+   - **Reach:** for each file the change will edit, who uses it: its callers and dependents (`graphify path` or `graphify query` when there is a graph; else a search of the whole repo for its exports and its name), the screens and endpoints they lead to, and any data it writes. List the notable ones, not all.
+   - **History:** `git log --since=90.days --format='%h %ad %s' --date=short -- <file>` for each file it will edit: how often it changed, and which commits say fix or revert.
+   - **Coverage:** which functions or components it will edit that no test mentions.
+6. Find how tests run (the exact commands from the rules, `package.json`, `pyproject.toml`, `Makefile`). If nothing says, write "not stated". Never invent a command.
 
 ## Hard rules
 
@@ -47,6 +51,13 @@ End with exactly these sections:
 - I-<n>: the incident, in a file this change touches
 - P-<n>: the pattern to follow
 (or: no memory in this project / memory is off)
+
+## Reach
+- Counts: files edited, files that use them, screens, endpoints, data written
+- Notable dependents: path — why it could break
+- Hot files: path — N changes, N fixes in 90 days
+- Untested: function or component — no test mentions it
+- Incidents from memory in these files: I-<n>
 
 ## Files
 - path: why it matters

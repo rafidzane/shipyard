@@ -1,0 +1,27 @@
+schema_version: "1.0"
+name: predict-uses-incident
+description: "A past incident in a caller of the changed helper is cited in the forecast and guarded with a test."
+tags: [predict]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard show money() with two decimal places, for example $1,234.50"
+  max_turns: 40
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: cites-the-incident
+    type: llm
+    criteria: >-
+      The final message refers to the past incident: it cites I-001, or says invoices broke after an earlier
+      change to money() and that invoice.py has no test.
+  - name: guards-the-untested-caller
+    type: llm
+    criteria: >-
+      The final message says the run will test invoice.py (or every caller of money()) as a guard.
+  - name: no-code-yet
+    type: regex
+    target: {source: file, path: fmt.py}
+    pattern: ",\\.2f"
+    match: not_contains

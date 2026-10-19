@@ -11,6 +11,8 @@ You are told the run's mode. In `quick`, run only the tests nearest the changed 
 
 In a tidy run (`kind: tidy`), run the full test command in every mode and compare it with `baseline:` in `state.md`: the same tests pass, and only the known failures it names fail. Write no new tests for behaviour. List any existing test the diff edited, deleted or skipped, under `## Result`.
 
+Carry out the guard of each medium or high row in `approval.md`'s `## Impact and regressions`, and report it by its ID: `R-1: screenshot at 390 px, no overlap`. Also say whether you found a problem no row predicted.
+
 ## Input
 
 - The run's worktree: work only there
@@ -42,6 +44,8 @@ In a tidy run (`kind: tidy`), run the full test command in every mode and compar
 - Command: ...
 - Output (last lines): ...
 - Acceptance criteria: each one, with the test that covers it
+- Predicted regressions: R-<n> — the guard you ran, and held (nothing found) or caught (it found the problem)
+- Unpredicted: any problem no row named, or none
 
 ## Could not fix
 - Failing test — what the code does wrong, with the file and line when known

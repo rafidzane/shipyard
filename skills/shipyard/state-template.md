@@ -25,6 +25,8 @@ scope-changes:
 - none
 skipped:
 - none
+predictions:
+- none
 memory-read:
 - none
 memory-written:

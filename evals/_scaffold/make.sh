@@ -149,3 +149,48 @@ echo 'secrets.ini' > .gitignore && printf '[db]\npassword = hunter2-do-not-copy\
 git add -A && git -c user.name=Eval -c user.email=eval@example.invalid commit -qm 'shipyard: build, tests and review for add-version-flag'
 SH
 } | write remember-writes-at-finish "tiny-cli with a finished, clean run (one owner answer) and an untracked secrets.ini"
+
+# Predict (0.8.0): a shared helper with three users, unittest only (the eval sandbox has no pytest)
+shop='cat > fmt.py <<'"'"'PY'"'"'
+def money(amount):
+    return "$" + format(amount, ",.0f")
+PY
+for m in report invoice receipt; do cat > $m.py <<PY
+from fmt import money
+
+
+def line(label, amount):
+    return label + ": " + money(amount)
+PY
+done
+cat > test_shop.py <<'"'"'PY'"'"'
+import unittest
+
+import invoice
+import receipt
+import report
+from fmt import money
+
+
+class ShopTest(unittest.TestCase):
+    def test_money(self):
+        self.assertEqual(money(1234), "$1,234")
+
+    def test_report_line(self):
+        self.assertEqual(report.line("Total", 1000), "Total: $1,000")
+PY
+cat > CLAUDE.md <<'"'"'MD'"'"'
+# tiny-shop
+
+- Tests: `python3 -m unittest -q`
+- `fmt.money` is used by report.py, invoice.py and receipt.py
+MD'
+incident='mkdir -p docs/shipyard/memory && cat > docs/shipyard/memory/incidents.md <<'"'"'MD'"'"'
+# Incidents
+
+Written by Shipyard at the end of each run. Edit or delete freely: an entry you changed is never rewritten.
+
+- I-001 2026-10-01 (run cents-everywhere): invoices printed "$1,000.0" after a change to money(); invoice.py had no test. Cause: an untested caller. Guard: test every caller of money(). Files: fmt.py, invoice.py
+MD'
+{ echo "$shop"; echo "$commit 'tiny-shop'"; } | write predict-reach "tiny-shop: money() in fmt.py used by three modules"
+{ echo "$shop"; echo "$incident"; echo "$commit 'tiny-shop with a past incident'"; } | write predict-uses-incident "tiny-shop with a past incident in invoice.py"

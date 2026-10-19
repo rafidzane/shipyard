@@ -1,0 +1,28 @@
+schema_version: "1.0"
+name: predict-reach
+description: "The approval names the reach of a change to a shared helper (its three callers) and the most likely regression with its guard, before any code."
+tags: [predict]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard show money() with two decimal places, for example $1,234.50"
+  max_turns: 40
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: names-the-reach
+    type: llm
+    criteria: >-
+      The final message shows the change reaches beyond fmt.py: it names at least two of report.py, invoice.py and
+      receipt.py, or says that three modules use money().
+  - name: names-a-regression-and-guard
+    type: llm
+    criteria: >-
+      The final message names the most likely regression (for example a caller's output or an existing test that
+      expects "$1,234") together with how the run will check it.
+  - name: no-code-yet
+    type: regex
+    target: {source: file, path: fmt.py}
+    pattern: ",\\.2f"
+    match: not_contains

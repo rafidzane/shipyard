@@ -127,13 +127,14 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 - In a tidy run, `approval.md` takes the tidy form in every mode, and `tasks.md` has one step per task (see Tidy runs). Give the planner `kind: tidy`.
 - In `quick`, write the short `approval.md` (from `approval-template.md`) and `tasks.md` yourself. Otherwise dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder in the worktree, whether the project has its own process, the path to `approval-template.md`, and `ui: yes` when the change touches a screen (rule 9).
 - If the planner reports `## Unclear` items, go back to stage 2.
+- **The forecast.** `approval.md` has `## Impact and regressions` (one line in `quick`): every row cites evidence, and every medium or high row has a guard. Send a gap back to the planner. Copy the rows into `predictions:` in `state.md`, one line each: `R-1 medium: <what> — open`. When the scout's `## Reach` shows a risk the sizing missed (data written, sign-in, permissions), re-size (see Modes).
 - Give the planner the mode and the scout's `## Memory`. The planner cites each memory ID it relied on under `Decisions made`; record them as `memory-read:` in `state.md`.
 - Give the planner the mode. Read `approval.md` yourself. It must have the sections the mode calls for, in the template's order: in `standard` and `deep`, at least two `mermaid` blocks; in `quick`, the short form. Send any gap back to the planner.
 - Set `stage: awaiting-approval` and commit: `shipyard: proposal for <slug>`.
 
 ## 4. Approval
 
-- Give the owner the path to `approval.md` and a 3-line summary. When you can publish an artifact, offer `approval.md` as a page.
+- Give the owner the path to `approval.md` and a 3-line summary; one of the lines names the most likely regression and its guard. When you can publish an artifact, offer `approval.md` as a page.
 - Locally (`push-ok: no`), ask once whether to push the branch so `approval.md` can be read on GitHub's mobile app. Record the answer as `push-ok: yes` or `no`, and push if yes.
 - **Suggest a mode** when the owner set the mode (a prefix or the project's line) and it doesn't fit what the proposal touches: `deep` for a database migration, money or calculation logic, sign-in, permissions or security; `quick` for a small change (see Modes) in `standard`. Say why in one line. Switching to `deep` runs its extra research and proposal sections before approval.
 - Ask the owner, with `AskUserQuestion`: approve as it stands; approve and merge into `base-branch` when clean (offer `main` too when it differs); change something; or switch mode when you suggested one. Then stop and wait. An approval with a merge target records `merge-to: <branch>`.
@@ -159,6 +160,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 - In `quick`, run the tests nearest the change yourself, in the worktree. Otherwise dispatch `tester` with: the worktree path, the run's folder, the mode, the project's test commands and test-data rules, rule 10, and the files the builders changed.
 - When it reports `## Could not fix`, send that failure to the builder that owns the file, once, and test again. If it still fails, ask the owner.
 - Record the result in `state.md` as `tests: passed — <command>` or `tests: failed — <command> (<what failed>)`.
+- Update each line in `predictions:` from the tester's report: `held` (its guard found nothing), `caught` (its guard found the problem, and it was fixed). Add each problem no row predicted as `R-x missed: <what>`. In `quick`, run the guard of the one-line forecast yourself.
 - In a tidy run, the full command runs in every mode, `quick` too, and passes only when it matches `baseline:`. Give the tester `kind: tidy`.
 - Commit: `shipyard: tests for <slug>`. Set `stage: review`.
 
@@ -168,7 +170,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 - `critical` problems go back to the owning builders, then to the tester again. After 2 rounds, ask the owner.
 - `## Scope changes` go to stage 4, as in stage 5.
 - Warnings you leave are listed in the final summary.
-- Record the result in `state.md` as `review: clean` or `review: <n> critical left`.
+- Record the result in `state.md` as `review: clean` or `review: <n> critical left`. Add each `unpredicted:` problem the review found to `predictions:` as `R-x missed: <what>`.
 - Commit: `shipyard: review fixes for <slug>`. Set `stage: finish`.
 
 ## 8. Finish

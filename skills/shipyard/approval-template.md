@@ -1,7 +1,7 @@
 # Approval: <slug>
 
-<!-- quick: only What changes, Picture, Files, Acceptance criteria, Decisions made. standard: the eight sections. deep: the eight plus the three at the end.
-     tidy (any mode): What changes, Removals and/or Upgrades, Files, Acceptance criteria, Decisions made; deep adds Pre-mortem. No Picture, no diagrams. -->
+<!-- quick: only What changes, Picture, Files, Acceptance criteria, Impact and regressions (one line), Decisions made. standard: the eight sections. deep: the eight plus the three at the end.
+     tidy (any mode): What changes, Removals and/or Upgrades, Files, Acceptance criteria, Impact and regressions, Decisions made; deep adds Pre-mortem. No Picture, no diagrams. -->
 
 ## What changes
 <3 to 6 plain sentences: what the owner will see or get, and what stays the same.>
@@ -36,6 +36,15 @@ flowchart LR
 ## Acceptance criteria
 - [ ] <something a person can check, one per line>
 <tidy: always include "the full test command passes, same as the baseline" and "no behaviour change".>
+
+## Impact and regressions
+Reach: <N files edited, N that use them, N screens, N endpoints, data written or none>.
+
+| ID | What could regress | Likelihood | Why we think so | Guard |
+|---|---|---|---|---|
+| R-1 | <what a user would hit> | low, medium or high | <evidence: a dependent, a hot file, an incident ID, an untested path> | <the test, check or screenshot the run will do> |
+
+<At most 6 rows, most likely first. Every row cites evidence. Every medium or high row has a guard the run will actually carry out. quick: one line, "Reach: … Most likely regression: … Guard: …".>
 
 ## Risks
 - <what could go wrong, and how the change guards against it; "None worth noting" when that is true>
