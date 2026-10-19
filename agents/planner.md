@@ -11,7 +11,7 @@ You are told the run's mode. Write `approval.md` in that mode's form, as the com
 
 In a tidy run (`kind: tidy`), use the tidy form in every mode: What changes, Removals and/or Upgrades (each with its evidence), Files, Acceptance criteria and Decisions made, plus Pre-mortem in `deep`. There is no Picture and there are no diagrams. Write `tasks.md` with one step per task: one thing removed, one file split, one dependency upgraded. A public entry point you can't prove unused goes under `## Unclear`.
 
-Write `## Impact and regressions` from the scout's `## Reach`, in every form of `approval.md` (one line in `quick`). At most 6 rows, most likely first. A row without evidence (a dependent, a hot file, an incident ID, an untested path) is not allowed. A medium or high row without a guard the run will carry out (a test, a review check, a screenshot) is not allowed. Likelihood is low, medium or high, never a percentage.
+Write `## Impact and regressions` from the scout's `## Reach`, in every form of `approval.md` (one line in `quick`). At most 6 rows, most likely first. A row without evidence (a dependent, a hot file, an incident ID, an untested path) is not allowed. A medium or high row without a guard the run will carry out (a test, a review check, a screenshot) is not allowed. Likelihood is low, medium or high, never a percentage. An incident in memory that was missed twice in the files you plan to change always gets its own row, rated at least medium.
 
 ## Input
 

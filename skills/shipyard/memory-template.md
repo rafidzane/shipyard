@@ -26,6 +26,25 @@ Each file starts with its heading (`# Decisions`, `# Incidents`, `# Patterns`) a
 - **Incident:** what went wrong, `Cause:`, `Guard:` (what now prevents it), and `Files:`.
 - **Pattern:** the convention, with `seen N runs` and the last run that followed it.
 
+## The scorecard
+
+A fourth file, `scorecard.md`, keeps one row per finished run, appended at its finish (see Learn in `SKILL.md`):
+
+```markdown
+# Scorecard
+
+Written by Shipyard. Over the last 20 runs: forecast hit rate 3 of 4 problems predicted; sizing matched in 5 of 6 runs; 2 of 5 challenges changed the plan. (Shown after 5 runs; before that, "not enough runs yet".)
+
+| Run | Finished | Mode | Sized | Actual | Predicted | Caught | Held | Missed in run | Missed after merge | Challenges that changed the plan |
+|---|---|---|---|---|---|---|---|---|---|---|
+| add-version-flag | 2026-10-19 | quick | 2 files, 1 area | 2 files, 1 area | 1 | 0 | 1 | 0 | open | 0 of 1 |
+```
+
+- **Forecast hit rate:** problems a prediction named ÷ every problem found, in the run and after merge. Predicting less doesn't raise it.
+- **Sizing matched:** runs whose actual files, areas and risk fit the mode they were sized as.
+- **Challenge yield:** challenges that changed the plan ÷ challenges raised.
+- **Missed after merge:** `open` until a later run checks it (up to 30 days after the finish), then a number.
+
 ## Rules
 
 - **Cap:** at most 150 entries a file. Past it, fold the oldest entries on one subject into a single entry that lists the IDs it replaces (`Replaces: I-001, I-004, I-009`). Nothing is dropped without a trace.

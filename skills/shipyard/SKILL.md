@@ -52,6 +52,7 @@ A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes 
   - **tests**: builders run the fast checks on their own files; the test stage runs the project's full command once; add an end-to-end or browser check only when the change alters what a user does on screen, the project's rules allow test accounts, and the mode is not `quick`
   - **waiting**: run a test suite or build that takes minutes in the background, and carry on with work that doesn't depend on it
 - **Say the sizing in one line**, in the first message where you stop for the owner, and record that line as `sizing:` in `state.md`. For example: `Sized: ~3 files, ~40 lines, 1 area, no risk → quick, 1 builder`.
+- **Learn from the scorecard** (`docs/shipyard/memory/scorecard.md`, after 5 runs). When fewer than 7 in 10 runs matched their sizing and most misses were bigger than sized, size changes in the same areas one step up, and say so in the sizing line ("sized up: 3 of the last 5 runs here were bigger than sized"). A challenge stance that changed no plan in the last 20 runs is dropped from `deep`'s three, and the run says so.
 - **Re-size when the estimate was wrong.** After research and again after the proposal, compare the files, areas and risk you now know with `sizing:`. When they point to another mode or another number of builders, switch, update `sizing:`, and say why in one line. Moving to a bigger mode runs the stages it adds before approval. A mode the owner set (a prefix or the project's line) is never changed on your own: suggest it at approval instead.
 
 | Stage | `quick` | `standard` | `deep` |
@@ -101,6 +102,7 @@ A tidy run cleans up: it removes dead code, refactors, or upgrades a dependency,
 - **Continuing:** work in the run's worktree. When the `worktree:` path in `state.md` exists and holds the branch, use it; otherwise create it with `git worktree add <path> shipyard/<slug>`, which also picks up a remote-only branch. With worktrees off, check out the branch instead. A run whose `state.md` has no `worktree:` line was started before worktrees: it carries on in the checkout, as before. Read `state.md`, `scout.md`, `approval.md` and `tasks.md`, then go to the stage named in `stage`.
 - **Check approval against the tree on every resume.** If `approved:` is empty but there are changes outside the run's folder (`git status` in the worktree, and `git diff <base>...HEAD`), stop, unless `scope-changes:` explains them (a re-approval after a scope change). Tell the owner what changed and ask what to do: approve the proposal as it stands, or set the changes aside. Setting aside means committing them to a side branch, or `git stash push -u -m "shipyard: set aside"` in the run's worktree when the owner asks for that. Never discard work: no `git checkout -- .`, `git reset --hard` or `git clean`. Do not build, and do not approve on their behalf.
 - **New run.**
+  - **Follow up earlier runs** (Learn), unless memory is off. For each row of `docs/shipyard/memory/scorecard.md` whose "Missed after merge" is `open`, at most 5, newest first: look at the commits on its base branch since it merged that touch its files (`git log`, nothing else). A revert of it, or a commit whose message says fix and whose diff overlaps the lines it changed, is a miss after merge: add an incident citing the run and the fixing commit, and fill in the row. A row more than 30 days past its finish with nothing found gets `0`. Recompute the numbers. Ask the owner nothing: this only reads history, and the scout sees the new incidents in its memory read.
   - Size the change and set the mode (see Modes), and strip any `quick:`, `standard:` or `deep:` prefix from the request. A `tidy` in the prefix sets `kind: tidy` (see Tidy runs); strip it too.
   - **Merge permission given up front:** a `merge to <branch>:` part of the prefix (`merge to main:`, or with a mode, `deep, merge to main:`) means merge when clean. Strip it and record `merge-to: <branch>`. Without it, `merge-to:` stays empty and the finish asks.
   - Make `<slug>`: kebab-case, at most 5 words, from the request.
@@ -182,29 +184,34 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 1. Run the project's closing steps from its rules, for example a version bump or ticking `tasks.md`. When `graphify-out/graph.json` exists, run `graphify update .` (rule 8); commit what it changes only if the project tracks `graphify-out/`.
 2. Check that nothing the run made for testing is left behind (test users, test data, temporary files, extra branches, servers it started), as the project's rules define it.
-3. **Write the memory** (rule 11), unless it is off. Create `docs/shipyard/memory/` and the three files from `memory-template.md` when they don't exist yet. Then add, one line each:
+3. **Learn from the run**, unless memory is off. Score each line in `predictions:`: `held`, `caught` or `missed`, with any still `open` counted as `held` when the tests and review passed. Compare `sizing:` with what the run actually touched (files, areas, risk). Then:
+   - each `missed` problem becomes an incident in memory, naming the evidence that would have predicted it (for example "callers of apiFetch refetch on focus"), so the next scout's reach search finds it
+   - a sizing miss becomes a pattern (for example "changes to the login page touch sign-in: size as deep")
+   - append the run's row to `docs/shipyard/memory/scorecard.md` (see `memory-template.md`; create it when missing) and recompute its three numbers over the last 20 runs
+   - the final summary gets one line, for example "Forecast: 3 held, 0 caught, 1 missed (now remembered as I-5)."
+4. **Write the memory** (rule 11), unless it is off. Create `docs/shipyard/memory/` and the three files from `memory-template.md` when they don't exist yet. Then add, one line each:
    - a **decision** for each owner answer and each approved choice a future run could otherwise reopen; skip one-off details such as a button's label
    - an **incident** for each failure that needed a fix (a test, a review problem, a reverted tidy step), each scope change, and each problem the owner reported during the run
    - a **pattern** when this run did something the same way as an earlier run (raise its `seen` count) or the owner corrected the crew ("not like that, like this")
 
    In `quick`, add at most one entry. Take each ID as the template says, record them as `memory-written:`, and stage the memory files by path with the run's folder. Then set `stage: done` and commit: `shipyard: finish <slug>`.
-4. Only now archive the change if the project's process does (for OpenSpec, `/opsx:archive`). The run's files move with it, and nothing is written to the old folder afterwards. Commit the archive.
-5. Push the branch if `push-ok` is `yes` or `cloud`. If it is `no`, ask once more now; finished means pushed.
-6. **Merge when clean:** when `merge-to:` names a branch and the run is clean (`tests: passed`, `review: clean`, nothing pending under `scope-changes:`), don't ask: merge into that branch and push, as in step 7. When `merge-to:` is set but the run is not clean, ask as below, and say why it is not clean.
-   **Merge and push?** Otherwise ask the owner, with `AskUserQuestion`, whether to merge `shipyard/<slug>` and push the result. When it isn't merged, still remove the worktree (step 8). Offer:
+5. Only now archive the change if the project's process does (for OpenSpec, `/opsx:archive`). The run's files move with it, and nothing is written to the old folder afterwards. Commit the archive.
+6. Push the branch if `push-ok` is `yes` or `cloud`. If it is `no`, ask once more now; finished means pushed.
+7. **Merge when clean:** when `merge-to:` names a branch and the run is clean (`tests: passed`, `review: clean`, nothing pending under `scope-changes:`), don't ask: merge into that branch and push, as in step 8. When `merge-to:` is set but the run is not clean, ask as below, and say why it is not clean.
+   **Merge and push?** Otherwise ask the owner, with `AskUserQuestion`, whether to merge `shipyard/<slug>` and push the result. When it isn't merged, still remove the worktree (step 9). Offer:
    - into `base-branch` (the branch the run started from), first, unless it is `main` or `detached`
    - into `main`
    - into another branch the owner names
    - don't merge, leave the branch pushed
 
-   Put this question last in your message, with every option listed by name, even when you also give the step 8 summary. Then stop and wait. Never merge without this answer or a `merge-to:` the owner gave.
-7. On a branch answer, merge in the run's worktree, so the owner's checkout is never switched:
+   Put this question last in your message, with every option listed by name, even when you also give the step 10 summary. Then stop and wait. Never merge without this answer or a `merge-to:` the owner gave.
+8. On a branch answer, merge in the run's worktree, so the owner's checkout is never switched:
    - `git fetch origin <target>` when it has an upstream, then `git checkout --detach origin/<target>` (or `<target>` without one), then `git merge --no-edit shipyard/<slug>`, then `git push origin HEAD:<target>`.
    - Then move the local `<target>` up when it only moves forward. When no worktree has it checked out, use `git branch -f <target> HEAD`. When a clean checkout has it, use `git -C <that checkout> merge --ff-only <commit>`. Otherwise leave it, and tell the owner to pull.
    - On a conflict, a failed fetch or a refused push, stop: run `git merge --abort` if a merge is half done, tell the owner what happened and ask. Never force-push, and never delete `shipyard/<slug>`.
    - With worktrees off, or for a run that has no worktree (no `worktree:` line in `state.md`, because it started before worktrees): `git checkout <target>`, `git pull --ff-only` when it has an upstream, `git merge --no-edit shipyard/<slug>`, `git push`, and stay on the target branch.
-8. Remove what the run made outside git: everything listed under `copied:`, then the worktree (`git worktree remove <path>`, after the last push; the branch stays).
-9. Reply with:
+9. Remove what the run made outside git: everything listed under `copied:`, then the worktree (`git worktree remove <path>`, after the last push; the branch stays).
+10. Reply with:
    - the branch, whether it is pushed, and where it was merged (or the pull request link the push printed, when not merged)
    - what was built
    - the test command and its result
@@ -213,4 +220,4 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
    - anything skipped, and why
    - the memory entries added, one line each with its ID
 
-Shipyard merges only into a branch the owner picked: up front (`merge-to:`), at approval, or at step 6.
+Shipyard merges only into a branch the owner picked: up front (`merge-to:`), at approval, or at step 7.
