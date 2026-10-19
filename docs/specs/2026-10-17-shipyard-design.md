@@ -72,7 +72,7 @@ flowchart TD
 - **Cloud sessions do not load plugins**, whether installed by the user or enabled in the repo's `.claude/settings.json` (per Claude Code docs, cloud-environments page). So:
   - First try a committed `SessionStart` hook that installs Shipyard from GitHub when a cloud session starts. This is undocumented, so prove it with a spike first.
   - If the spike fails, use `/shipyard:install`, which copies the skill and agents into the project's `.claude/skills/` and `.claude/agents/` for the owner to commit. That route is documented to work.
-- **Self-contained.** No dependency on superpowers or any other plugin, because cloud sessions won't have them. *(Builder's call: this is my decision, not the owner's.)*
+- **Self-contained.** No dependency on any other plugin, because cloud sessions won't have them. *(Builder's call: this is my decision, not the owner's.)*
 - Machine-local auto memory does not reach cloud sessions, so run state lives in the repo:
   - in `tasks.md` checkboxes
   - in a short `state.md` next to the proposal: stage, approval status, open questions

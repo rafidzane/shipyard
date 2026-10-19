@@ -11,6 +11,7 @@ A Claude Code plugin that turns a plain-words request into a pushed branch. A sm
 - **Each run works in its own git worktree** (`<repo>.shipyard/<slug>` beside the repo), so other sessions sharing your checkout are never disturbed: your branch, your uncommitted work and your dev servers stay as they are, and merging happens from the worktree. Agents stop only processes they started, never stash, reset or switch branches, and clean up what they made. Turn worktrees off with `Shipyard worktree: no` in `CLAUDE.md`.
 - **Parallel runs don't collide on change numbers:** a project that numbers its changes (`NNN-name`) gets its number reserved at the start, checked against every branch.
 - **`/shipyard:version`** shows which version is installed and loaded in the session.
+- **It gets better at your project** (1.0.0): it remembers decisions, incidents and patterns, forecasts what each change could break, argues with each plan before you see it, and learns from how its forecasts held up. See Learning, below.
 - It **uses the project's knowledge graph** when there is one: with `graphify-out/graph.json` in the repo, the scout maps the change with graphify first, and the finish runs `graphify update .`.
 - **Screen work keeps the UI consistent:** when a change touches a page, a component or an email, the planner, the UI builders and the reviewer copy the app's own tokens, components and nearest screen first, then use `frontend-design` and `design-taste-frontend` for craft (hierarchy, spacing, states, contrast), not for a new look unless the owner asks for one. The reviewer flags one-off styles. A stale design document is reported, and the code wins.
 
@@ -32,6 +33,28 @@ flowchart TD
   B -. unclear .-> A
   T -. can't fix .-> A
 ```
+
+## Learning
+
+Four capabilities make one loop: **remember**, **predict**, **challenge** and **learn**.
+
+```mermaid
+flowchart LR
+  M[(Memory<br/>docs/shipyard/memory/)] --> P[Predict<br/>at research]
+  M --> C[Challenge<br/>at proposal]
+  P --> C
+  C --> A{You approve}
+  A --> B[Build, test, review]
+  B --> L[Learn<br/>at the finish and on the next run]
+  L --> M
+```
+
+**Learn** closes the loop. At the finish, the run scores each prediction as held, caught or missed. A miss becomes an incident in memory, naming the evidence that would have predicted it. The next run in the project checks how earlier ones held up after they were merged: a revert, or a fix on the same lines, counts as a miss after merge. Each run adds a row to `docs/shipyard/memory/scorecard.md`. After five runs, the scorecard keeps three numbers:
+- the forecast hit rate
+- how often the sizing was right
+- how often a challenge changed the plan
+
+Those numbers tune the next runs: sizing goes up a step where runs keep turning out bigger, an incident missed twice is always forecast, and a challenge stance that never helps is dropped. **`/shipyard:scorecard`** shows the numbers, the last five runs and the recent incidents.
 
 ## Memory
 
