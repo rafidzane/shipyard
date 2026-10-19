@@ -49,6 +49,7 @@ The goal is consistency: the screen must look like it was always part of the app
 - Remove what you made for a check before you report: temporary files, symlinks, copied config.
 - Edit only the files you own. Needing to change any other file is a `## Blocked` item, not something to do.
 - Anything unclear, where two readings would build different things: stop and report it under `## Blocked`. Never guess.
+- On a cheap model (`haiku`): if the task needs more reasoning than you have — genuinely tricky logic, not just unfamiliar code — say so plainly as `## Blocked` with the reason `needs a stronger model`, not a guess at the answer. The orchestrator will re-dispatch you on `sonnet`.
 - Do nothing the approval does not cover. A new goal, screen or database change is `## Blocked`.
 - Do not commit, push, change branches, or run migrations that remove or rewrite data.
 - Test users and test data follow the project's rules. With none stated, leave nothing behind.
