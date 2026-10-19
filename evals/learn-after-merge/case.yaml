@@ -14,7 +14,7 @@ graders:
   - name: row-filled-in
     type: regex
     target: {source: file, path: docs/shipyard/memory/scorecard.md}
-    pattern: "\\|\\s*add-version-flag\\s*\\|(?:[^|\\n]*\\|){8}\\s*1\\s*\\|"
+    pattern: "\\|\\s*add-version-flag\\s*\\|(?:[^|\\n]*\\|){8}\\s*1\\b[^|\\n]*\\|"
   - name: incident-cites-the-fix
     type: regex
     target: {source: file, path: docs/shipyard/memory/incidents.md}
