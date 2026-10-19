@@ -1,0 +1,28 @@
+schema_version: "1.0"
+name: remember-settled-decision
+description: 'A question the project memory already settles (how --version prints) is not asked again; the plan follows the decision and cites it, and still stops for approval.'
+tags: [remember]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard add a --version flag"
+  max_turns: 40
+  timeout_seconds: 1200
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: not-asked-again
+    type: llm
+    criteria: >-
+      The final message does not ask the user how the version should be printed (for example with or without a
+      "v" prefix, or what else to print). Asking for approval, or about anything else, is fine.
+  - name: cites-the-decision
+    type: llm
+    criteria: >-
+      The final message mentions decision D-001, or says the version prints only the number with no "v" prefix
+      because that was decided before.
+  - name: no-code-yet
+    type: regex
+    target: {source: file, path: cli.py}
+    pattern: "--version"
+    match: not_contains
