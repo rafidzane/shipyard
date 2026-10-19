@@ -17,9 +17,11 @@ graders:
     pattern: "\\bteh\\b"
   - name: approval-written
     type: llm
-    focus: trace
     criteria: >-
-      A Write tool call creates an approval.md under docs/shipyard/ (inside the run's worktree).
+      The final message indicates a proposal (approval.md) exists for the owner to review, by any clear phrasing
+      - naming the file, giving its path, saying "proposal is ready", offering it for approval, etc. The typo
+      itself must not be reported as already fixed.
+
   - name: quick-on-its-own
     type: llm
     focus: trace
