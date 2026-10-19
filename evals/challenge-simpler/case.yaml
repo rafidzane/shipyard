@@ -1,21 +1,21 @@
 schema_version: "1.0"
 name: challenge-simpler
-description: "The plan is challenged before approval, and the approved plan reuses the existing money() helper instead of adding a new formatter."
+description: "The plan is challenged before approval, and the approved plan reuses the existing plural() helper instead of writing new wording code."
 tags: [challenge]
 context:
   scaffold_script: scaffold.sh
 execution:
-  prompt: "/shipyard add a sales tax line (8%) to receipts, shown in dollars with thousands separators"
+  prompt: "/shipyard add count(n) to report.py that returns \"Items: 1 item\" for one and \"Items: 3 items\" for three"
   max_turns: 50
   timeout_seconds: 1500
   allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
 runs: 3
 graders:
-  - name: reuses-money
+  - name: reuses-plural
     type: llm
     criteria: >-
-      The final message's plan formats the tax with the existing money() helper from fmt.py, and does not
-      propose a new formatting function.
+      The final message's plan words the count with the existing plural() helper from text.py, and does not
+      propose writing new singular/plural logic.
   - name: shows-the-challenge
     type: llm
     criteria: >-
@@ -23,7 +23,6 @@ graders:
       and its answer), or names the Challenged section of approval.md.
   - name: no-code-yet
     type: regex
-    target: {source: file, path: receipt.py}
-    pattern: "tax"
-    flags: i
+    target: {source: file, path: report.py}
+    pattern: "def count"
     match: not_contains

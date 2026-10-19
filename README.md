@@ -50,6 +50,17 @@ Before you approve, `approval.md` says what the change is likely to break, beyon
 
 The tester carries out those checks, and the run records each prediction as held, caught or missed.
 
+## Challenge
+
+Every plan is argued with before you see it. The reviewer reads the plan against the code, the memory and the forecast, and asks:
+- **Simpler:** is there a simpler way?
+- **Fit:** does it fit the project's patterns?
+- **History:** does it repeat something you already turned down, or skip a past incident's guard?
+- **Blast radius:** can it reach less?
+- **Regret:** what will you regret?
+
+Each challenge needs evidence. The planner must change the plan or say why not, and an unresolved challenge comes to you as a question. `approval.md` lists every challenge with its answer under `## Challenged`, and the approval summary says what the challenge changed. `quick` asks only "is there something simpler?"; `deep` runs three challengers at once.
+
 ## Install (terminal, desktop, remote control)
 
 ```

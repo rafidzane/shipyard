@@ -203,5 +203,17 @@ Written by Shipyard at the end of each run. Edit or delete freely: an entry you 
 
 - D-002 2026-10-05 (run setup): standard library only, no new dependencies: the shop runs on machines without pip. Why: the owner'"'"'s answer. Supersedes: none
 MD'
-{ echo "$shop"; echo "$commit 'tiny-shop'"; } | write challenge-simpler "tiny-shop: money() already formats dollars with commas"
+plural='cat > text.py <<'"'"'PY'"'"'
+def plural(n, word):
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+PY
+printf -- "- text.plural is used by invoice.py\n" >> CLAUDE.md
+cat >> invoice.py <<'"'"'PY'"'"'
+
+
+def count(n):
+    from text import plural
+    return "Lines: " + plural(n, "line")
+PY'
+{ echo "$shop"; echo "$plural"; echo "$commit 'tiny-shop with text.plural'"; } | write challenge-simpler "tiny-shop: text.plural() already words a count"
 { echo "$shop"; echo "$nodeps"; echo "$commit 'tiny-shop, standard library only'"; } | write challenge-history "tiny-shop whose memory says standard library only"

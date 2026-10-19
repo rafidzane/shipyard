@@ -139,7 +139,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 ## 4. Approval
 
-- Give the owner the path to `approval.md` and a 3-line summary; one of the lines names the most likely regression and its guard. When you can publish an artifact, offer `approval.md` as a page.
+- Give the owner the path to `approval.md` and a short summary: what changes, the most likely regression and its guard, and what the challenge changed (or that the plan held up). When you can publish an artifact, offer `approval.md` as a page.
 - Locally (`push-ok: no`), ask once whether to push the branch so `approval.md` can be read on GitHub's mobile app. Record the answer as `push-ok: yes` or `no`, and push if yes.
 - **Suggest a mode** when the owner set the mode (a prefix or the project's line) and it doesn't fit what the proposal touches: `deep` for a database migration, money or calculation logic, sign-in, permissions or security; `quick` for a small change (see Modes) in `standard`. Say why in one line. Switching to `deep` runs its extra research and proposal sections before approval.
 - Ask the owner, with `AskUserQuestion`: approve as it stands; approve and merge into `base-branch` when clean (offer `main` too when it differs); change something; or switch mode when you suggested one. Then stop and wait. An approval with a merge target records `merge-to: <branch>`.
