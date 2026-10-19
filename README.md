@@ -33,6 +33,15 @@ flowchart TD
   T -. can't fix .-> A
 ```
 
+## Memory
+
+Each project keeps a memory in `docs/shipyard/memory/`, committed with the runs:
+- **`decisions.md`:** choices you made or approved
+- **`incidents.md`:** what went wrong, why, and the guard against it
+- **`patterns.md`:** how this project does things
+
+Every run reads it first. A question you already answered isn't asked again, a past incident in the files being changed is named, and the patterns count as project rules. At the finish, the run adds what it learned, one line per entry, with an ID like `D-7` and the run's name. Edit or delete any entry: Shipyard never rewrites one you changed, it only supersedes it. Nothing secret or personal goes in. Turn it off with a `Shipyard memory: off` line in the project's `CLAUDE.md`.
+
 ## Install (terminal, desktop, remote control)
 
 ```

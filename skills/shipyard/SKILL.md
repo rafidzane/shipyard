@@ -195,7 +195,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
    - `git fetch origin <target>` when it has an upstream, then `git checkout --detach origin/<target>` (or `<target>` without one), then `git merge --no-edit shipyard/<slug>`, then `git push origin HEAD:<target>`.
    - Then move the local `<target>` up when it only moves forward. When no worktree has it checked out, use `git branch -f <target> HEAD`. When a clean checkout has it, use `git -C <that checkout> merge --ff-only <commit>`. Otherwise leave it, and tell the owner to pull.
    - On a conflict, a failed fetch or a refused push, stop: run `git merge --abort` if a merge is half done, tell the owner what happened and ask. Never force-push, and never delete `shipyard/<slug>`.
-   - With worktrees off: `git checkout <target>`, `git pull --ff-only` when it has an upstream, `git merge --no-edit shipyard/<slug>`, `git push`, and stay on the target branch.
+   - With worktrees off, or for a run that has no worktree (no `worktree:` line in `state.md`, because it started before worktrees): `git checkout <target>`, `git pull --ff-only` when it has an upstream, `git merge --no-edit shipyard/<slug>`, `git push`, and stay on the target branch.
 8. Remove what the run made outside git: everything listed under `copied:`, then the worktree (`git worktree remove <path>`, after the last push; the branch stays).
 9. Reply with:
    - the branch, whether it is pushed, and where it was merged (or the pull request link the push printed, when not merged)
