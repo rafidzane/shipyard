@@ -1,6 +1,6 @@
 # Approval: <slug>
 
-<!-- quick: only What changes, Picture, Files, Acceptance criteria, Impact and regressions (one line), Decisions made. standard: the eight sections. deep: the eight plus the three at the end.
+<!-- quick: only What changes, Picture, Files, Acceptance criteria, Impact and regressions (one line), Decisions made, Challenged (one line). standard: the eight sections. deep: the eight plus the three at the end.
      tidy (any mode): What changes, Removals and/or Upgrades, Files, Acceptance criteria, Impact and regressions, Decisions made; deep adds Pre-mortem. No Picture, no diagrams. -->
 
 ## What changes
@@ -52,6 +52,10 @@ Reach: <N files edited, N that use them, N screens, N endpoints, data written or
 ## Decisions made
 - Owner: <an answer the owner gave>
 - Planner: <a call the planner made, for the owner to check>
+
+## Challenged
+- <Simpler | Fit | History | Blast radius | Regret> (<must answer | consider>): <the challenge>. Answer: <changed: how | kept: why>
+<Every challenge raised before approval, with its answer. quick: one line, "Simpler: <is there something simpler?> Answer: <…>".>
 
 ## Alternatives considered
 <deep only: two or three other ways to build it, and why this one>

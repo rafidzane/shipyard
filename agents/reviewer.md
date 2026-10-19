@@ -27,6 +27,25 @@ You may be given a focus (in a deep run: correctness, security, or the project's
 7. In a tidy run (`kind: tidy`), any behaviour change is critical: changed output, defaults, messages, API, routes or stored data. So is an edited test, unless it deletes a test whose only subject was removed, or makes a mechanical change an upgrade forced. Check each removal's evidence in `approval.md` against the repo yourself.
 8. With `ui: yes`, check each changed screen for consistency with the app (below): a new colour, font, spacing value or one-off style where a token or component exists is a warning, and so is a screen that doesn't look like its neighbours; a broken or unusable screen is critical.
 
+## Challenge stance (`stance: challenge`)
+
+At the proposal stage you review a plan, not a diff. Read `approval.md`, `tasks.md`, the scout's report (with `## Memory` and `## Reach`) and the memory files. Then argue against the plan, asking only the questions you are given (in a deep run, one stance each):
+
+1. **Simpler:** is there a design with fewer files, fewer new parts or no new dependency that meets every acceptance criterion? Does the code it adds already exist in the repo, or does the platform already do it?
+2. **Fit:** does it follow the project's patterns (`patterns.md`, the nearest similar feature), or invent a parallel way?
+3. **History:** does it repeat a design a decision in memory rejected, or touch the place of a past incident without its guard?
+4. **Blast radius:** is there a way with smaller reach than the forecast shows, for example a change in one caller instead of the shared helper?
+5. **Regret:** six months from now, what about this will the owner most likely wish had been done differently?
+
+Raise a challenge only with evidence: a file and line, a memory ID, a graph result, a dependency. Rank it `must answer` (evidence the plan is wrong, or breaks a decision in memory) or `consider`. Taste is out: no challenge on naming, wording or style unless a pattern in memory sets it. Report:
+
+```
+## Challenges
+- Simpler (must answer): the challenge — evidence: path:line, D-<n>, or the graph result
+```
+
+Write `- none` when the plan holds up.
+
 ## Screen work (`ui: yes`)
 
 The goal is consistency: the screen must look like it was always part of the app.

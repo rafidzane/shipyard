@@ -25,6 +25,7 @@ scope-changes:
 - none
 skipped:
 - none
+challenges:
 predictions:
 - none
 memory-read:

@@ -59,6 +59,7 @@ A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes 
 | 1. Research | no scout: you read the files the request names, their neighbours and the project's rules file, and write a short `scout.md` | one scout | three scouts in parallel, in one message, each with a focus: the code; the tests and specs; history and prior art (git log, similar features in the repo) |
 | 2. Questions | only blockers; everything else becomes a listed decision | as written | also edge cases and what could go wrong |
 | 3. Proposal | no planner: you write the short `approval.md` (What changes, Picture, Files, Acceptance criteria, Decisions made) and `tasks.md` | all eight sections | all eight, plus Alternatives considered, Pre-mortem and Test plan |
+| 3b. Challenge | no challenger: you ask yourself "is there something simpler?" and answer it in one line under `## Challenged` | one reviewer in the challenge stance, questions 1 to 4 | three reviewers in the challenge stance in parallel, one stance each (simplicity: 1 and 4; fit and history: 2 and 3; regret: 5), dispatched with `model: opus` |
 | 5. Build | one builder, which also writes or updates the tests for its change | parallel builders by area | parallel builders, tests written first, dispatched with `model: opus` |
 | 6. Test | no tester: you run the tests nearest the change | the full test command | the full test command, plus a browser or end-to-end check when the project's rules allow test accounts, plus tests for the Pre-mortem's risks |
 | 7. Review | your own check of the diff against the acceptance criteria, no reviewer | one reviewer | three reviewers in parallel, in one message, each with a focus (correctness, security, the project's rules), dispatched with `model: opus`; up to 3 rounds |
@@ -130,6 +131,10 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 - **The forecast.** `approval.md` has `## Impact and regressions` (one line in `quick`): every row cites evidence, and every medium or high row has a guard. Send a gap back to the planner. Copy the rows into `predictions:` in `state.md`, one line each: `R-1 medium: <what> — open`. When the scout's `## Reach` shows a risk the sizing missed (data written, sign-in, permissions), re-size (see Modes).
 - Give the planner the mode and the scout's `## Memory`. The planner cites each memory ID it relied on under `Decisions made`; record them as `memory-read:` in `state.md`.
 - Give the planner the mode. Read `approval.md` yourself. It must have the sections the mode calls for, in the template's order: in `standard` and `deep`, at least two `mermaid` blocks; in `quick`, the short form. Send any gap back to the planner.
+- **Challenge the plan** before the owner sees it, as the mode says (row 3b). Dispatch `reviewer` with `stance: challenge`, the worktree path, the run's folder, the memory files and the five questions. In a tidy run, the challenge asks only whether anything is a behaviour change and whether the evidence that code is dead holds up.
+  - Send every `must answer` challenge to the planner (you, in `quick`): it revises the plan, or keeps it and says why in one sentence. `consider` challenges get a one-line answer too.
+  - Challenge the revised plan once more. A `must answer` still open after that goes to the owner as a question at stage 4.
+  - Every challenge and its answer is listed under `## Challenged` in `approval.md`, so the owner sees the argument, not only its result. Record `challenges: <n raised>, <n changed the plan>, <n kept>, <n to the owner>` in `state.md`.
 - Set `stage: awaiting-approval` and commit: `shipyard: proposal for <slug>`.
 
 ## 4. Approval

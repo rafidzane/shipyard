@@ -1,0 +1,28 @@
+schema_version: "1.0"
+name: challenge-history
+description: "A request that invites a new dependency, in a project whose memory says standard library only: the plan adds none, or asks the owner and cites D-002."
+tags: [challenge, remember]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard let report lines take a date in any common format (2026-10-19, 19/10/2026, Oct 19 2026) and show it as Oct 19, 2026"
+  max_turns: 50
+  timeout_seconds: 1500
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: no-new-dependency
+    type: llm
+    criteria: >-
+      The final message's plan uses only Python's standard library (for example datetime.strptime with a list of
+      formats). It does not propose installing or adding a package such as python-dateutil, unless it asks the
+      owner about it and cites D-002 or the standard-library-only decision.
+  - name: cites-the-decision
+    type: llm
+    criteria: >-
+      The final message cites D-002, or says the plan keeps to the standard library because that was decided before.
+  - name: no-code-yet
+    type: regex
+    target: {source: file, path: report.py}
+    pattern: "strptime|dateutil"
+    match: not_contains

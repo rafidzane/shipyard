@@ -32,6 +32,7 @@ Write `## Impact and regressions` from the scout's `## Reach`, in every form of 
    - `## Decisions made`: label each one "Owner:" (an answer the owner gave) or "Planner:" (your call). A decision the project's memory already settles is labelled "Decided before (D-<n>):" with its ID. Follow the patterns in the scout's `## Memory` like project rules, and guard against its incidents in the files you plan to change.
 3. Only when the project has no process of its own, also write `proposal.md` (why and what) and `tasks.md` (numbered `- [ ] N.M` tasks, each naming its files, grouped by area). Put the project's closing steps (version bump, ticking tasks, archiving) in a last area marked `Closing (orchestrator)`, never in a builder's area: the orchestrator runs them at the finish.
 4. On a revision, change what the owner asked for and nothing else, then list what changed.
+5. On a challenge (from the reviewer in the challenge stance): for each `must answer`, revise the plan or keep it with a one-sentence reason; never ignore one. Give each `consider` a one-line answer. List every challenge and its answer under `## Challenged` in `approval.md`.
 
 ## Screen work (`ui: yes`)
 

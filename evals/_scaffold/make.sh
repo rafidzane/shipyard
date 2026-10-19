@@ -194,3 +194,14 @@ Written by Shipyard at the end of each run. Edit or delete freely: an entry you 
 MD'
 { echo "$shop"; echo "$commit 'tiny-shop'"; } | write predict-reach "tiny-shop: money() in fmt.py used by three modules"
 { echo "$shop"; echo "$incident"; echo "$commit 'tiny-shop with a past incident'"; } | write predict-uses-incident "tiny-shop with a past incident in invoice.py"
+
+# Challenge (0.9.0)
+nodeps='mkdir -p docs/shipyard/memory && cat > docs/shipyard/memory/decisions.md <<'"'"'MD'"'"'
+# Decisions
+
+Written by Shipyard at the end of each run. Edit or delete freely: an entry you changed is never rewritten.
+
+- D-002 2026-10-05 (run setup): standard library only, no new dependencies: the shop runs on machines without pip. Why: the owner'"'"'s answer. Supersedes: none
+MD'
+{ echo "$shop"; echo "$commit 'tiny-shop'"; } | write challenge-simpler "tiny-shop: money() already formats dollars with commas"
+{ echo "$shop"; echo "$nodeps"; echo "$commit 'tiny-shop, standard library only'"; } | write challenge-history "tiny-shop whose memory says standard library only"
