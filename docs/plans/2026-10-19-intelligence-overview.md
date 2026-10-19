@@ -1,5 +1,7 @@
 # Shipyard Engineering Intelligence: the four plans
 
+**Status:** implemented on 2026-10-19 in versions 0.7.0 to 1.0.0. Each plan below records its evaluation results.
+
 **Goal:** make Shipyard reason about engineering decisions before, during and after a run, not just carry one out. The four capabilities build on each other, so the plans ship in order:
 
 | Plan | Version | Adds | Needs |
@@ -35,10 +37,10 @@ Today every run starts from nothing: the scout re-discovers the project, the pla
 - **Opt out per project.** `Shipyard memory: off` in the project's `CLAUDE.md` or `AGENTS.md` turns all four off; the runs behave as 0.6.0.
 - **Measured.** Each plan adds text checks to `tests/check-skill.sh` and two or more eval cases. Evals grade from files and the final message, not long traces (trace-focused graders proved flaky on long runs in 0.6.0).
 
-## Open decisions for the owner
+## Decisions
 
-These are settled in the plans as defaults; change them before building if you disagree.
+These defaults were adopted, and can be revisited:
 
-1. **Where the memory lives:** in the project repo (`docs/shipyard/memory/`, the default, shared and versioned) or in the user's home (private, per machine).
-2. **Who may write it:** only the orchestrator at the finish (the default), or any agent during the run.
-3. **Learn after merge:** a follow-up check on the next run in the project (the default, no scheduler needed), or a scheduled task that checks a week later.
+1. **Where the memory lives:** in the project's repository (`docs/shipyard/memory/`), so it is shared, versioned and readable on any device.
+2. **Who writes it:** only the orchestrator, at the finish of a run.
+3. **When Learn checks merged work:** at the start of the next run in the same project, from git history, with no scheduler.
