@@ -26,6 +26,10 @@ You are the orchestrator. You run in the main session because only you can start
    - Start a server for a check from the run's worktree, on a free port (not the project's usual one), and stop it before reporting.
    - Never `git stash`, `git checkout <branch>`, `git switch`, `git reset` or `git clean`, and never touch the owner's checkout or another worktree.
    - Put temporary files in the worktree or a `mktemp -d` folder, and remove them. A symlink made to borrow `node_modules` or the like is removed too.
+11. **Remember the project.** Each project keeps a memory in `docs/shipyard/memory/`: `decisions.md`, `incidents.md` and `patterns.md`, in the format of `memory-template.md` beside this file. A `Shipyard memory: off` line in the project's `CLAUDE.md` or `AGENTS.md` turns it off; the run then neither reads nor writes it.
+   - **Read it first.** At research, the scout (you, in `quick`) reads the three files before anything else. A decision in it is settled: don't ask it again, unless the code now contradicts it (then it is a question, citing its ID). Incidents in the files the change touches are named in `scout.md`. Patterns count as project rules for the planner and builders.
+   - **Write it last.** At the finish (stage 8), you add what this run learned; no agent writes the memory. Record the IDs a run relied on as `memory-read:` and the ones it added as `memory-written:` in `state.md`.
+   - **The owner's edits win**, and nothing secret ever goes in (see the template).
 
 ## Modes
 
@@ -107,11 +111,11 @@ A tidy run cleans up: it removes dead code, refactors, or upgrades a dependency,
 
 ## 1. Research
 
-In `quick`, do the research yourself (see Modes). Otherwise dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`), the worktree path, rule 10, whether `graphify-out/graph.json` exists, and `kind: tidy` in a tidy run (in `quick`, gather the tidy evidence yourself). Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` go to every later agent. In a tidy run, run the baseline now (see Tidy runs); a red one is the first question at stage 2. Set `stage: questions`.
+In `quick`, do the research yourself (see Modes). Otherwise dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`), the worktree path, rule 10, whether `graphify-out/graph.json` exists, and `kind: tidy` in a tidy run (in `quick`, gather the tidy evidence yourself). Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` and `## Memory` go to every later agent (rule 11). In a tidy run, run the baseline now (see Tidy runs); a red one is the first question at stage 2. Set `stage: questions`.
 
 ## 2. Questions
 
-Sort the scout's `## Unclear` items, and anything you see yourself, as the mode says: ask the ones whose wrong guess would change what the owner gets; settle the rest yourself and pass them to the planner as decisions to list. When nothing needs asking, skip straight to stage 3 in the same turn. Always ask how to run tests when the scout found no stated test command. In a `feature` run whose request is clearly only cleanup or an upgrade, suggest a tidy run here (see Tidy runs). Record each open question under `open-questions:` in `state.md`, then ask and stop. Write each answer under `answers:` in `state.md` as it comes back. When the answers come back, ask any follow-ups they raise. Move on only when nothing that matters is unclear. Set `stage: proposal`.
+Sort the scout's `## Unclear` items, and anything you see yourself, as the mode says: ask the ones whose wrong guess would change what the owner gets; settle the rest yourself and pass them to the planner as decisions to list. When nothing needs asking, skip straight to stage 3 in the same turn. Always ask how to run tests when the scout found no stated test command. An item a decision in memory already settles is not asked: pass it to the planner as `Decided before (D-<n>)` (rule 11). In a `feature` run whose request is clearly only cleanup or an upgrade, suggest a tidy run here (see Tidy runs). Record each open question under `open-questions:` in `state.md`, then ask and stop. Write each answer under `answers:` in `state.md` as it comes back. When the answers come back, ask any follow-ups they raise. Move on only when nothing that matters is unclear. Set `stage: proposal`.
 
 ## 3. Proposal
 
@@ -123,6 +127,7 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 - In a tidy run, `approval.md` takes the tidy form in every mode, and `tasks.md` has one step per task (see Tidy runs). Give the planner `kind: tidy`.
 - In `quick`, write the short `approval.md` (from `approval-template.md`) and `tasks.md` yourself. Otherwise dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder in the worktree, whether the project has its own process, the path to `approval-template.md`, and `ui: yes` when the change touches a screen (rule 9).
 - If the planner reports `## Unclear` items, go back to stage 2.
+- Give the planner the mode and the scout's `## Memory`. The planner cites each memory ID it relied on under `Decisions made`; record them as `memory-read:` in `state.md`.
 - Give the planner the mode. Read `approval.md` yourself. It must have the sections the mode calls for, in the template's order: in `standard` and `deep`, at least two `mermaid` blocks; in `quick`, the short form. Send any gap back to the planner.
 - Set `stage: awaiting-approval` and commit: `shipyard: proposal for <slug>`.
 
@@ -170,7 +175,12 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 1. Run the project's closing steps from its rules, for example a version bump or ticking `tasks.md`. When `graphify-out/graph.json` exists, run `graphify update .` (rule 8); commit what it changes only if the project tracks `graphify-out/`.
 2. Check that nothing the run made for testing is left behind (test users, test data, temporary files, extra branches, servers it started), as the project's rules define it.
-3. Set `stage: done` and commit: `shipyard: finish <slug>`.
+3. **Write the memory** (rule 11), unless it is off. Create `docs/shipyard/memory/` and the three files from `memory-template.md` when they don't exist yet. Then add, one line each:
+   - a **decision** for each owner answer and each approved choice a future run could otherwise reopen; skip one-off details such as a button's label
+   - an **incident** for each failure that needed a fix (a test, a review problem, a reverted tidy step), each scope change, and each problem the owner reported during the run
+   - a **pattern** when this run did something the same way as an earlier run (raise its `seen` count) or the owner corrected the crew ("not like that, like this")
+
+   In `quick`, add at most one entry. Take each ID as the template says, record them as `memory-written:`, and stage the memory files by path with the run's folder. Then set `stage: done` and commit: `shipyard: finish <slug>`.
 4. Only now archive the change if the project's process does (for OpenSpec, `/opsx:archive`). The run's files move with it, and nothing is written to the old folder afterwards. Commit the archive.
 5. Push the branch if `push-ok` is `yes` or `cloud`. If it is `no`, ask once more now; finished means pushed.
 6. **Merge when clean:** when `merge-to:` names a branch and the run is clean (`tests: passed`, `review: clean`, nothing pending under `scope-changes:`), don't ask: merge into that branch and push, as in step 7. When `merge-to:` is set but the run is not clean, ask as below, and say why it is not clean.
@@ -194,5 +204,6 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
    - smaller changes made after approval
    - in a tidy run: the baseline and the final test result side by side, and every step under `skipped:` with why
    - anything skipped, and why
+   - the memory entries added, one line each with its ID
 
 Shipyard merges only into a branch the owner picked: up front (`merge-to:`), at approval, or at step 6.

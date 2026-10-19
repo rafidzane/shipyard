@@ -25,5 +25,9 @@ scope-changes:
 - none
 skipped:
 - none
+memory-read:
+- none
+memory-written:
+- none
 copied:
 - none

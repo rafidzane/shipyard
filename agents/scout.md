@@ -17,6 +17,7 @@ The owner's request, in plain words, and the repository you are in.
 ## What to do
 
 0. When `graphify-out/graph.json` exists, start there: `graphify query "<the request>"` for the parts the change touches, `graphify explain "<concept>"` for each main idea, and `graphify path "<A>" "<B>"` for how two parts connect. Read `graphify-out/GRAPH_REPORT.md` only when those don't surface enough. Then confirm what the graph shows in the files themselves: the graph can be out of date. With no graph, or no `graphify` command, carry on with steps 1 to 4.
+0b. When `docs/shipyard/memory/` exists and the project hasn't turned memory off (`Shipyard memory: off`), read `decisions.md`, `incidents.md` and `patterns.md` next. Keep the entries that bear on this request: decisions that settle one of its questions, incidents in the files it touches, patterns it should follow. A decision the code now contradicts goes under `## Unclear`, with its ID.
 1. Read the project's rules: `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md` and the README at the root, plus any `CLAUDE.md` in the folders the change touches.
 2. Find the code the request touches: the screens, endpoints, services, data and tests. Follow the real flow end to end, not just the first file that matches a word.
 3. Note the patterns a builder must copy: a similar feature, how tests are written, naming.
@@ -40,6 +41,12 @@ End with exactly these sections:
 ```
 ## Graph
 - used (what the queries found) / no graph in this project / graphify not installed
+
+## Memory
+- D-<n>: the decision, and the question in this request it settles
+- I-<n>: the incident, in a file this change touches
+- P-<n>: the pattern to follow
+(or: no memory in this project / memory is off)
 
 ## Files
 - path: why it matters

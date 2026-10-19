@@ -27,7 +27,7 @@ In a tidy run (`kind: tidy`), use the tidy form in every mode: What changes, Rem
    - `## Picture`: a fenced text wireframe of each screen that changes, or the words "No screen changes".
    - `## How it fits`: one ```` ```mermaid ```` flowchart of the parts touched (UI → API → service → data).
    - `## Crew workflow`: one ```` ```mermaid ```` flowchart of which agent does which tasks, and what runs in parallel. Split the work into areas whose files do not overlap. A small change is one builder and no parallel step.
-   - `## Decisions made`: label each one "Owner:" (an answer the owner gave) or "Planner:" (your call).
+   - `## Decisions made`: label each one "Owner:" (an answer the owner gave) or "Planner:" (your call). A decision the project's memory already settles is labelled "Decided before (D-<n>):" with its ID. Follow the patterns in the scout's `## Memory` like project rules, and guard against its incidents in the files you plan to change.
 3. Only when the project has no process of its own, also write `proposal.md` (why and what) and `tasks.md` (numbered `- [ ] N.M` tasks, each naming its files, grouped by area). Put the project's closing steps (version bump, ticking tasks, archiving) in a last area marked `Closing (orchestrator)`, never in a builder's area: the orchestrator runs them at the finish.
 4. On a revision, change what the owner asked for and nothing else, then list what changed.
 
