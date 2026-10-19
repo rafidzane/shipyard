@@ -42,6 +42,14 @@ Each project keeps a memory in `docs/shipyard/memory/`, committed with the runs:
 
 Every run reads it first. A question you already answered isn't asked again, a past incident in the files being changed is named, and the patterns count as project rules. At the finish, the run adds what it learned, one line per entry, with an ID like `D-7` and the run's name. Edit or delete any entry: Shipyard never rewrites one you changed, it only supersedes it. Nothing secret or personal goes in. Turn it off with a `Shipyard memory: off` line in the project's `CLAUDE.md`.
 
+## Forecast
+
+Before you approve, `approval.md` says what the change is likely to break, beyond the files it edits (`## Impact and regressions`):
+- **Reach:** how many files use the ones being changed, and which screens, endpoints or data they lead to
+- **Regressions:** up to six, each rated low, medium or high, each with its evidence (a caller, a file that often needs fixes, a past incident, an untested path) and, when medium or high, the check the run will do
+
+The tester carries out those checks, and the run records each prediction as held, caught or missed.
+
 ## Install (terminal, desktop, remote control)
 
 ```
