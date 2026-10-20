@@ -109,7 +109,7 @@ has "1.0.0 scorecard format" "$root/skills/shipyard/memory-template.md" '## The 
 has "1.0.0 twice-missed incidents always forecast" "$root/agents/planner.md" 'missed twice'
 has "1.0.0 stale decisions asked about" "$root/agents/scout.md" 'marked stale'
 has "1.0.0 scorecard command" "$root/commands/scorecard.md" 'Read-only'
-has "perf: quick skips graphify update" "$skill" 'In `quick`, skip it'
+has "perf: quick skips graphify update" "$skill" 'skip `graphify update`'
 has "perf: quick skips the scorecard" "$skill" 'needs no scorecard entry'
 has "perf: most quick runs write no memory" "$skill" 'most quick runs write none'
 has "perf: quick builder defaults to haiku" "$skill" '`model: haiku` by default'

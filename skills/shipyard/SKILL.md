@@ -16,7 +16,7 @@ You are the orchestrator. You run in the main session because only you can start
 5. **Commit at the end of every stage** on the run's branch, with messages like `shipyard: <stage> for <slug>`. Stage files by path: the run's folder and the files the builders own. Never `git add -A` or `git add .`, so none of the owner's own work is swept in. Push after every commit when `push-ok` is `yes` or `cloud`, so another device can pick the run up. Never merge without the owner's answer at the finish (stage 8), never force-push, never delete a branch you did not create.
 7. **Each run has its own worktree, and only the crew changes it.** Other sessions and people may share the owner's checkout, so the run never works there: at the start you create a git worktree for the run's branch (see New run), and every agent, command and commit uses it. Never switch branches, stash, reset or clean in the owner's checkout. Before each commit, compare `git status` in the worktree with the files this run touched. Changes not made by the crew are left alone, never staged, and reported to the owner. A `Shipyard worktree: no` line in the project's `CLAUDE.md` or `AGENTS.md` turns worktrees off; the run then works in the checkout itself.
 6. **Scale to the request.** A one-file change is one builder and no parallel step. It still gets a proposal and approval.
-8. **Use the knowledge graph when the project has one.** When `graphify-out/graph.json` exists, the scout maps the change with `graphify query`, `graphify explain` and `graphify path` before reading files, and you run `graphify update .` at the finish (stage 8), in `standard` and `deep`. In `quick`, skip it: a few files changing does not warrant re-indexing the whole project. With no graph, or no `graphify` command, carry on without it and say so in `scout.md`.
+8. **Use the knowledge graph when the project has one.** When `graphify-out/graph.json` exists, the scout maps the change with `graphify query`, `graphify explain` and `graphify path` before reading files, and you run `graphify update .` at the finish (stage 8) — see the Modes table for which modes run it. With no graph, or no `graphify` command, carry on without it and say so in `scout.md`.
 9. **Screen work keeps the UI consistent.** When the change adds or alters something people see (a page, a component, a layout, an email), tell the planner, the builders that own UI files and the reviewer `ui: yes`. The aim is a screen that looks like it was always part of the app:
    - **The app's own design comes first.** Use its tokens, components and the layout of its nearest existing screen. Never add new colours, fonts, spacing scales or one-off styles where a token or component exists. A design document (`DESIGN.md` or the like) counts only when it matches the code: the code wins, and a stale document is reported to the owner.
    - **The design skills are for craft, not a new look.** Load `frontend-design:frontend-design` and `design-taste-frontend` with the Skill tool for hierarchy, spacing rhythm, states (empty, loading, error), contrast and a pre-flight check. Their push for a distinctive aesthetic applies only when the owner asks for a redesign or a new look.
@@ -57,6 +57,8 @@ A run has one mode: `trivial`, `quick`, `standard` or `deep`. It sets how much e
 - **Learn from the scorecard** (`docs/shipyard/memory/scorecard.md`, after 5 runs). When fewer than 7 in 10 runs matched their sizing and most misses were bigger than sized, size changes in the same areas one step up, and say so in the sizing line ("sized up: 3 of the last 5 runs here were bigger than sized"). A challenge stance that changed no plan in the last 20 runs is dropped from `deep`'s three, and the run says so.
 - **Re-size when the estimate was wrong.** After research and again after the proposal, compare the files, areas and risk you now know with `sizing:`. When they point to another mode or another number of builders, switch, update `sizing:`, and say why in one line. Moving to a bigger mode runs the stages it adds before approval. A mode the owner set (a prefix or the project's line) is never changed on your own: suggest it at approval instead.
 
+`trivial` is not in this table: it skips every stage below (see Trivial runs). For `quick`, `standard` and `deep`:
+
 | Stage | `quick` | `standard` | `deep` |
 |---|---|---|---|
 | 1. Research | no scout: you read the files the request names, their neighbours and the project's rules file, and write a short `scout.md` | one scout | three scouts in parallel, in one message, each with a focus: the code; the tests and specs; history and prior art (git log, similar features in the repo) |
@@ -66,6 +68,8 @@ A run has one mode: `trivial`, `quick`, `standard` or `deep`. It sets how much e
 | 5. Build | one builder, which also writes or updates the tests for its change | parallel builders by area | parallel builders, tests written first, dispatched with `model: opus` |
 | 6. Test | no tester: you run the tests nearest the change | the full test command | the full test command, plus a browser or end-to-end check when the project's rules allow test accounts, plus tests for the Pre-mortem's risks |
 | 7. Review | your own check of the diff against the acceptance criteria, no reviewer | one reviewer | three reviewers in parallel, in one message, each with a focus (correctness, security, the project's rules), dispatched with `model: opus`; up to 3 rounds |
+| 8. Finish | score `predictions:` in one line, skip the scorecard; write at most one memory entry, only if worth it; skip `graphify update` | score, scorecard row, usual memory write, `graphify update` | same as `standard` |
+| Models | scout `haiku`, builder `haiku` by default (`sonnet` if it reports it needs more), everything else `sonnet` | scout `haiku`, everything else `sonnet` | scout and everything else `sonnet`, except builders, reviewers and challengers: `opus` |
 
 Templates beside this file: `state-template.md` and `approval-template.md`.
 
@@ -138,7 +142,7 @@ A tidy run cleans up: it removes dead code, refactors, or upgrades a dependency,
 
 ## 1. Research
 
-In `quick`, do the research yourself (see Modes). Otherwise dispatch the scout or scouts the mode calls for, with the request (and each one's focus in `deep`), the worktree path, rule 10, whether `graphify-out/graph.json` exists, and `kind: tidy` in a tidy run (in `quick`, gather the tidy evidence yourself). Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` and `## Memory` go to every later agent (rule 11). In a tidy run, run the baseline now (see Tidy runs); a red one is the first question at stage 2. Set `stage: questions`.
+Dispatch the scout(s) the Modes table calls for (none in `quick` — do the research yourself, including the tidy evidence in a tidy run), with the request (and each one's focus in `deep`), the worktree path, rule 10, whether `graphify-out/graph.json` exists, and `kind: tidy` in a tidy run. Save the report, or the reports one after another, as `scout.md` in the run's folder: its `## Project rules` and `## Memory` go to every later agent (rule 11). In a tidy run, run the baseline now (see Tidy runs); a red one is the first question at stage 2. Set `stage: questions`.
 
 ## 2. Questions
 
@@ -152,13 +156,13 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
   - When the propose command isn't available in this session, create the change with the CLI and have the planner write its files in the format of an existing change.
   - When the change folder is ignored by git but the project already tracks files there (`git ls-files <folder>` lists some), stage the run's files with `git add -f`.
 - In a tidy run, `approval.md` takes the tidy form in every mode, and `tasks.md` has one step per task (see Tidy runs). Give the planner `kind: tidy`.
-- In `quick`, write the short `approval.md` (from `approval-template.md`) and `tasks.md` yourself. Otherwise dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder in the worktree, whether the project has its own process, the path to `approval-template.md`, and `ui: yes` when the change touches a screen (rule 9).
+- Write or dispatch the proposal as the Modes table says (no planner in `quick` — write the short `approval.md` from `approval-template.md`, and `tasks.md`, yourself). Otherwise dispatch `planner` with: the request, the scout report, the owner's answers, the run's folder in the worktree, whether the project has its own process, the path to `approval-template.md`, and `ui: yes` when the change touches a screen (rule 9).
 - If the planner reports `## Unclear` items, go back to stage 2.
 - **The forecast.** `approval.md` has `## Impact and regressions` (one line in `quick`): every row cites evidence, and every medium or high row has a guard. Send a gap back to the planner. Copy the rows into `predictions:` in `state.md`, one line each: `R-1 medium: <what> — open`. When the scout's `## Reach` shows a risk the sizing missed (data written, sign-in, permissions), re-size (see Modes).
 - Give the planner the mode and the scout's `## Memory`. The planner cites each memory ID it relied on under `Decisions made`; record them as `memory-read:` in `state.md`.
-- Give the planner the mode. Read `approval.md` yourself. It must have the sections the mode calls for, in the template's order: in `standard` and `deep`, at least two `mermaid` blocks; in `quick`, the short form. Send any gap back to the planner.
+- Give the planner the mode. Read `approval.md` yourself: it must have the sections `approval-template.md` calls for in that mode, in order (`standard` and `deep` need at least two `mermaid` blocks). Send any gap back to the planner.
 - **Challenge the plan** before the owner sees it, as the mode says (row 3b). Dispatch `reviewer` with `stance: challenge`, the worktree path, the run's folder, the memory files and the five questions. In a tidy run, the challenge asks only whether anything is a behaviour change and whether the evidence that code is dead holds up.
-  - Send every `must answer` challenge to the planner (you, in `quick`): it revises the plan, or keeps it and says why in one sentence. `consider` challenges get a one-line answer too.
+  - Send every `must answer` challenge to the planner (you, doing the planner's job, in `quick`): it revises the plan, or keeps it and says why in one sentence. `consider` challenges get a one-line answer too.
   - Challenge the revised plan once more. A `must answer` still open after that goes to the owner as a question at stage 4.
   - Every challenge and its answer is listed under `## Challenged` in `approval.md`, so the owner sees the argument, not only its result. Record `challenges: <n raised>, <n changed the plan>, <n kept>, <n to the owner>` in `state.md`.
 - Set `stage: awaiting-approval` and commit: `shipyard: proposal for <slug>`.
@@ -180,24 +184,24 @@ Sort the scout's `## Unclear` items, and anything you see yourself, as the mode 
 
 - **Hard check first:** `approved:` is filled in. If it is empty, go to stage 4.
 - **Tidy runs:** `baseline:` must read `passed` (or name the owner's known failures); otherwise go back to stage 1. Give each builder `kind: tidy`. Record each `## Skipped` step a builder reports under `skipped:`, and leave its task unticked.
-- Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the worktree path, the run's folder, its task numbers, its owned files, the project rules, rule 10, and `ui: yes` when it owns UI files (rule 9). In `quick`, tell it to write or update the tests for its change too. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
-- One area means one builder. Several areas mean builders dispatched in parallel, in one message, at most 4 (see Modes). In `quick`, one builder takes every area, dispatched with `model: haiku` by default (see Modes); re-dispatch with `model: sonnet` if it reports `## Blocked` for being out of its depth rather than for a real question. In `deep`, tell each builder to write its tests first, and dispatch it with `model: opus`.
+- Split the tasks in `tasks.md` into areas whose files do not overlap. Give each builder: the worktree path, the run's folder, its task numbers, its owned files, the project rules, rule 10, `ui: yes` when it owns UI files (rule 9), and the model the Modes table says. In `quick`, tell it to write or update the tests for its change too. Builders do not edit `tasks.md`: tick each task yourself from the builders' `## Done` reports. The closing steps (version bump, ticking, archiving) are yours, at stage 8: never give them to a builder.
+- One area means one builder. Several areas mean builders dispatched in parallel, in one message, at most 4 (see Modes). In `quick`, one builder takes every area; re-dispatch it on `sonnet` if it reports `## Blocked` for being out of its depth rather than for a real question (see rule for the model fallback). In `deep`, tell each builder to write its tests first.
 - When a builder reports `## Blocked` with the reason `needs a stronger model`, re-dispatch it on `sonnet` with no question to the owner; this is the quick-builder fallback, not an ambiguity. For any other `## Blocked`, ask the owner, then dispatch it again with the answer. A file it needs that another builder owns waits until that builder is done.
 - **A scope change** (a goal, screen or database change that is not in `approval.md`): have the planner update `approval.md`, record it under `scope-changes:`, empty `approved:`, and go to stage 4. Smaller adjustments are noted for the final summary.
 - Commit: `shipyard: build for <slug>`. Set `stage: test`.
 
 ## 6. Test
 
-- In `quick`, run the tests nearest the change yourself, in the worktree. Otherwise dispatch `tester` with: the worktree path, the run's folder, the mode, the project's test commands and test-data rules, rule 10, and the files the builders changed.
+- Run the tests, or dispatch `tester`, as the Modes table says (`quick`: run the tests nearest the change yourself, in the worktree). When dispatching: the worktree path, the run's folder, the mode, the project's test commands and test-data rules, rule 10, and the files the builders changed.
 - When it reports `## Could not fix`, send that failure to the builder that owns the file, once, and test again. If it still fails, ask the owner.
 - Record the result in `state.md` as `tests: passed — <command>` or `tests: failed — <command> (<what failed>)`.
-- Update each line in `predictions:` from the tester's report: `held` (its guard found nothing), `caught` (its guard found the problem, and it was fixed). Add each problem no row predicted as `R-x missed: <what>`. In `quick`, run the guard of the one-line forecast yourself.
+- Update each line in `predictions:` from the tester's report: `held` (its guard found nothing), `caught` (its guard found the problem, and it was fixed). Add each problem no row predicted as `R-x missed: <what>`. In `quick`, you ran the one-line forecast's guard yourself (no tester), so update it from what you found.
 - In a tidy run, the full command runs in every mode, `quick` too, and passes only when it matches `baseline:`. Give the tester `kind: tidy`.
 - Commit: `shipyard: tests for <slug>`. Set `stage: review`.
 
 ## 7. Review
 
-- As the mode says: in `quick`, check the diff against the acceptance criteria yourself. Otherwise dispatch `reviewer` with: the worktree path, the run's folder, `base`, the project rules, `ui: yes` when the diff touches a screen (rule 9), and its focus in `deep` (three at once), and `kind: tidy` in a tidy run.
+- Review, or dispatch `reviewer`, as the Modes table says (`quick`: check the diff against the acceptance criteria yourself). When dispatching: the worktree path, the run's folder, `base`, the project rules, `ui: yes` when the diff touches a screen (rule 9), and its focus in `deep` (three at once), and `kind: tidy` in a tidy run.
 - `critical` problems go back to the owning builders, then to the tester again. After 2 rounds, ask the owner.
 - `## Scope changes` go to stage 4, as in stage 5.
 - Warnings you leave are listed in the final summary.
