@@ -1,0 +1,28 @@
+schema_version: "1.0"
+name: trivial-no-ceremony
+description: "An explicit trivial: request for a one-line typo fix skips the branch, worktree, state.md and approval.md ceremony, but still asks for explicit approval before editing and still commits on the current branch."
+tags: [trivial]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard trivial: fix the typo \"teh\" in README.md"
+  max_turns: 25
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: no-branch-or-worktree
+    type: regex
+    target: files
+    pattern: "^docs/shipyard/"
+    flags: m
+    match: not_contains
+  - name: asks-before-editing
+    type: llm
+    criteria: >-
+      The agent asks the user to approve the one-line change (showing the before/after text or similar) before
+      editing README.md, and stops to wait for the answer. It does not write approval.md or any run folder.
+  - name: typo-not-yet-fixed
+    type: regex
+    target: {source: file, path: README.md}
+    pattern: "\\bteh\\b"

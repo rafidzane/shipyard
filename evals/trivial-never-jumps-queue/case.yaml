@@ -1,0 +1,24 @@
+schema_version: "1.0"
+name: trivial-never-jumps-queue
+description: "A trivial: prefixed message arrives while a real Shipyard run is open awaiting approval on its own branch. The open run's find-and-resume check must still happen first: the message should not be treated as an unrelated trivial request that bypasses it."
+tags: [trivial]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "/shipyard trivial: fix the typo \"teh\" in README.md"
+  max_turns: 25
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Bash, Write, Edit, Agent, Skill, AskUserQuestion]
+runs: 3
+graders:
+  - name: notices_the_open_run
+    type: llm
+    criteria: >-
+      The final message shows awareness of the existing open run "add-version-flag" on branch
+      shipyard/add-version-flag awaiting approval (for example, it mentions that run, asks whether this
+      message is about it or a separate new request, or asks the owner to clarify) rather than silently
+      treating the trivial: request as unrelated and just fixing the typo on the spot.
+  - name: typo-not-silently-fixed-on-current-branch
+    type: regex
+    target: {source: file, path: README.md}
+    pattern: "\\bteh\\b"

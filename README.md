@@ -77,11 +77,12 @@ Every run has a mode that sets how much effort each stage gets. Every mode keeps
 
 | Mode | When | What changes |
 |---|---|---|
-| `quick` | A small, low-risk change: under about 50 lines, at most 3 files, one area | No scout, planner or tester; one builder that also writes the tests; a short proposal |
+| `trivial` | One file, a few lines, no risk, nothing to design: a typo, a copy edit, a version bump | No branch, worktree, `state.md` or `approval.md` — the change itself is shown inline and approved with one question, then committed on the current branch |
+| `quick` | A small, low-risk change: under about 50 lines, at most 3 files, one area | No scout, planner or tester; one builder, dispatched on Haiku by default, that also writes the tests; a short proposal |
 | `standard` | Everything else | One scout, the full proposal, one builder per area (up to 4), the full test command, one reviewer |
 | `deep` | Data-changing migrations, money or calculation logic, sign-in, permissions, security, or more than about 4 areas or 500 lines | Three scouts, a pre-mortem, tests written first, three challengers and three reviewers on Opus |
 
-Shipyard **sizes each request** (files, lines, areas and risk), picks the mode, states the sizing in one line, and re-sizes if research proves the estimate wrong. To choose the mode yourself, prefix the request (`/shipyard quick: …`, `/shipyard deep: …`) or set a project default (see [Configuration](#configuration)). A mode you set is never changed without asking.
+Shipyard **sizes each request** (files, lines, areas and risk), picks the mode, states the sizing in one line, and re-sizes if research proves the estimate wrong. `trivial` is the exception, not the default for small changes — when sizing is unsure between `trivial` and `quick`, it picks `quick`. To choose the mode yourself, prefix the request (`/shipyard trivial: …`, `/shipyard quick: …`, `/shipyard deep: …`) or set a project default (see [Configuration](#configuration)). A mode you set is never changed without asking. Approval is required in every mode, including `trivial` — it only drops the paperwork around that approval, never the approval itself.
 
 ## Tidy runs
 

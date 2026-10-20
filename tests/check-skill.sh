@@ -115,6 +115,13 @@ has "perf: most quick runs write no memory" "$skill" 'most quick runs write none
 has "perf: quick builder defaults to haiku" "$skill" '`model: haiku` by default'
 has "perf: builder can ask for a stronger model" "$root/agents/builder.md" 'needs a stronger model'
 has "perf: orchestrator escalates silently" "$skill" 'with no question to the owner'
+has "trivial: a fourth mode" "$skill" '`trivial`, `quick`, `standard` or `deep`'
+has "trivial: approval gate still holds" "$skill" 'keeps the approval gate too'
+has "trivial: no state.md" "$skill" 'runs have no `state.md`'
+has "trivial: still asks before editing" "$skill" '"Make this change?"'
+has "trivial: re-sizes up on any complication" "$skill" "this isn't trivial after all"
+has "trivial: open-run check never skipped" "$skill" 'Still run "Find an existing run first"'
+has "trivial: quick is the safe default" "$skill" 'pick `quick`.'
 has "0.4.0 quick has no planner" "$skill" 'no planner: you write'
 has "0.4.0 quick has no tester" "$skill" 'no tester: you run'
 has "0.4.0 quick builder writes its tests" "$builder" 'write or update the tests for your change'

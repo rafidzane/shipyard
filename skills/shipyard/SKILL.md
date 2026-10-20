@@ -10,7 +10,7 @@ You are the orchestrator. You run in the main session because only you can start
 ## Rules that hold at every stage
 
 1. **Ask instead of guessing, on what matters.** When two reasonable readings would give the owner something they would notice and care about (where something goes, how a number is worked out, a database change, what is in scope), ask the owner. A detail a sensible builder would settle alone (formatting, naming, trimming whitespace, where a helper lives) is not a question: decide it and list it under `Decisions made` in `approval.md`, where the owner checks it at approval. A clear request goes straight to the proposal with no questions. Use `AskUserQuestion`: at most 4 questions per call, most important first. If that tool is unavailable, put the questions in your reply. Either way, **stop after asking**: end your turn and wait for the answer. Never carry on with an assumed answer.
-2. **No production code before approval.** Nothing outside the run's folder changes until `state.md` has a filled-in `approved:` line. Only the owner approves, in their own words. You never write `approved:` on your own judgment.
+2. **No production code before approval.** Nothing outside the run's folder changes until `state.md` has a filled-in `approved:` line. Only the owner approves, in their own words. You never write `approved:` on your own judgment. (`trivial` runs have no `state.md`: there, approval is the owner's explicit yes to the one question you ask before the one edit you make — see Trivial runs.)
 3. **The project's rules win.** Follow its `CLAUDE.md` / `AGENTS.md`: its process, test commands, version bumps, rules on test data. Shipyard's defaults apply only where the project says nothing.
 4. **State lives in the repo.** The run's folder holds the record: `state.md`, `tasks.md`, the scout's report as `scout.md`, and the owner's answers under `answers:` in `state.md`. Update `state.md` when the stage changes. A run on any device resumes from these files alone, never from this chat.
 5. **Commit at the end of every stage** on the run's branch, with messages like `shipyard: <stage> for <slug>`. Stage files by path: the run's folder and the files the builders own. Never `git add -A` or `git add .`, so none of the owner's own work is swept in. Push after every commit when `push-ok` is `yes` or `cloud`, so another device can pick the run up. Never merge without the owner's answer at the finish (stage 8), never force-push, never delete a branch you did not create.
@@ -33,25 +33,27 @@ You are the orchestrator. You run in the main session because only you can start
 
 ## Modes
 
-A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes into each stage. **Every mode keeps** the rules above: ask on what matters, no code before approval, the project's rules, nothing left behind, and the merge question at the finish.
+A run has one mode: `trivial`, `quick`, `standard` or `deep`. It sets how much effort goes into each stage. **Every mode keeps** the rules above: ask on what matters, no code before approval, the project's rules, nothing left behind, and the merge question at the finish. `trivial` keeps the approval gate too — it only drops the paperwork around it (see below).
 
 - **Name the run's mode** in every message where you stop for the owner, for example "(deep mode)", and say when it is a tidy run: "(quick mode, tidy run)".
-- **Choosing it:** a `quick:`, `standard:` or `deep:` prefix on the request (strip it from the request); else a `Shipyard mode: <mode>` line in the project's `CLAUDE.md` or `AGENTS.md`; else **size the change** and pick the mode from that. Record it as `mode:` in `state.md`. A resumed run keeps its recorded mode.
+- **Choosing it, before anything else runs:** a `trivial:`, `quick:`, `standard:` or `deep:` prefix on the request (strip it from the request); else a `Shipyard mode: <mode>` line in the project's `CLAUDE.md` or `AGENTS.md`; else **size the change** and pick the mode from that. For every mode but `trivial`, record it as `mode:` in `state.md` once one exists. A resumed run keeps its recorded mode; `trivial` is never resumed (see Trivial runs).
 - **Size the change** at the start, in a minute rather than a study. Read the request, then find the files it touches: with `graphify query` when the project has a graph, else with Grep and Glob on the names it mentions. Estimate four things:
   - **files**: how many files change
   - **lines**: roughly how many lines change
   - **areas**: parts with no file in common, for example frontend, backend, database, docs
   - **risk**: whether it touches a migration that changes or removes data, money or calculation logic, sign-in, permissions, security, or deleting a user's data
 - **Pick the mode from the size:**
+  - `trivial` for **a one-line-of-thought change**: one file, at most 5 lines, no new file, no risk, and a plain description leaves nothing to design (a typo, a copy edit, a version bump, a single constant). If explaining the change would take longer than the change itself, it is not trivial.
   - `quick` for **a small change**: under about 50 lines, at most 3 files, one area, no risk
   - `deep` when there is any risk, or the change spans more than about 4 areas or 500 lines
   - `standard` for everything else
+  - **When unsure between `trivial` and `quick`, pick `quick`.** `trivial` is the exception, not the default for small changes; a wrong `trivial` call skips scrutiny a `quick` run would have kept.
 - **Pick how to run it** in that mode, the cheapest way that still covers the change:
   - **builders**: one per area, at most 4, dispatched in parallel; one when there is a single area
-  - **models**: the agents' own (`haiku` for the scout, `sonnet` for the rest); `opus` only in `deep`, for builders and reviewers; `quick`'s one builder is dispatched with `model: haiku` by default (the size check already means a small, no-risk change) — fall back to `sonnet` only when it reports it needs more reasoning than it has, or the project's own files show heavy cross-file logic the builder flags as past its depth
-  - **tests**: builders run the fast checks on their own files; the test stage runs the project's full command once; add an end-to-end or browser check only when the change alters what a user does on screen, the project's rules allow test accounts, and the mode is not `quick`
+  - **models**: the agents' own (`haiku` for the scout, `sonnet` for the rest); `opus` only in `deep`, for builders and reviewers; `quick`'s one builder is dispatched with `model: haiku` by default (the size check already means a small, no-risk change) — fall back to `sonnet` only when it reports it needs more reasoning than it has, or the project's own files show heavy cross-file logic the builder flags as past its depth; `trivial` has no builder (see below)
+  - **tests**: builders run the fast checks on their own files; the test stage runs the project's full command once; add an end-to-end or browser check only when the change alters what a user does on screen, the project's rules allow test accounts, and the mode is not `quick` or `trivial`
   - **waiting**: run a test suite or build that takes minutes in the background, and carry on with work that doesn't depend on it
-- **Say the sizing in one line**, in the first message where you stop for the owner, and record that line as `sizing:` in `state.md`. For example: `Sized: ~3 files, ~40 lines, 1 area, no risk → quick, 1 builder`.
+- **Say the sizing in one line**, in the first message where you stop for the owner, and record that line as `sizing:` in `state.md`. For example: `Sized: ~3 files, ~40 lines, 1 area, no risk → quick, 1 builder`, or `Sized: 1 file, 1 line, no risk → trivial`.
 - **Learn from the scorecard** (`docs/shipyard/memory/scorecard.md`, after 5 runs). When fewer than 7 in 10 runs matched their sizing and most misses were bigger than sized, size changes in the same areas one step up, and say so in the sizing line ("sized up: 3 of the last 5 runs here were bigger than sized"). A challenge stance that changed no plan in the last 20 runs is dropped from `deep`'s three, and the run says so.
 - **Re-size when the estimate was wrong.** After research and again after the proposal, compare the files, areas and risk you now know with `sizing:`. When they point to another mode or another number of builders, switch, update `sizing:`, and say why in one line. Moving to a bigger mode runs the stages it adds before approval. A mode the owner set (a prefix or the project's line) is never changed on your own: suggest it at approval instead.
 
@@ -66,6 +68,27 @@ A run has one mode: `quick`, `standard` or `deep`. It sets how much effort goes 
 | 7. Review | your own check of the diff against the acceptance criteria, no reviewer | one reviewer | three reviewers in parallel, in one message, each with a focus (correctness, security, the project's rules), dispatched with `model: opus`; up to 3 rounds |
 
 Templates beside this file: `state-template.md` and `approval-template.md`.
+
+### Trivial runs
+
+`trivial` is not a smaller `quick` — it is a different shape of run, for a change so small that researching it and reading about it take longer than making it. It still never writes code before you approve; it only drops the paperwork that a one-line change does not need.
+
+- **No worktree, no branch, no `state.md`, no `scout.md`, no `tasks.md`.** The run happens in the owner's checkout, on the current branch, in this conversation. (`Shipyard worktree: no` is irrelevant here — there is no worktree to turn off.) If the checkout has uncommitted changes that would collide with the one file you are about to touch, stop and say so: `trivial` is not for an already-busy tree.
+- **No `approval.md`.** Show the owner the change itself: the file, the line, before and after, in your message — a diff of one or a few lines, not a path to a file they would have to go open. For example:
+
+  ```
+  frontend/README.md:3
+  - A small command line tool for teh terminal.
+  + A small command line tool for the terminal.
+  ```
+
+- **Approval is still required and still explicit.** Ask with `AskUserQuestion`: "Make this change?" with Yes and Change something (or a plain question in your reply, if the tool is unavailable). Stop and wait, exactly as every other mode does. "Looks good, but also…" is a change request, not an approval, here too.
+- **No scout, no planner, no builder, no tester, no reviewer, no challenge, no forecast, no memory read or write, no scorecard, no `graphify update`.** You make the edit yourself, directly, once approved.
+- **Still runs the nearest test**, when the project has one for the file touched, and says the result in one line. A project with no test for that file, or no test command at all, is told plainly: "no test covers this."
+- **Still follows the project's rules** that apply to any change: version bumps, changelog lines, and anything `CLAUDE.md` or `AGENTS.md` states as unconditional.
+- **Commits straight to the current branch**, with a plain message (no `shipyard: <stage> for <slug>` — there is no run to stage). Push only if the owner's normal workflow already pushes on commit, or they say to.
+- **No finish, no merge question.** The commit is the whole run. Reply with: the file and line changed, the test result (or that none exists), and the commit.
+- **Re-size up, never down, the moment it is not this simple.** If the edit touches a second file, needs a judgement call, could break something, or the owner's answer is "well, also…", stop before committing, say "this isn't trivial after all", and start over at the size this change actually needs (most often `quick`). Never make an undisclosed, unapproved change and call it trivial after the fact.
 
 ## Tidy runs
 
@@ -94,6 +117,7 @@ A tidy run cleans up: it removes dead code, refactors, or upgrades a dependency,
 
 ## Starting or resuming
 
+- **`trivial` first, but only once you know there is nothing open.** Still run "Find an existing run first" below. If an open run exists and this message could be answering it, treat it as that run's reply, whatever mode it names — never let a stray `trivial:` divert from a run awaiting the owner's answer. Only when there is no open run, pick the mode (above); if that lands on `trivial`, skip the rest of this section (branches, worktrees, `state.md`, change numbers do not apply) and go straight to Trivial runs.
 - Cloud session: the environment variable `CLAUDE_CODE_REMOTE` is `true` (check with `echo "$CLAUDE_CODE_REMOTE"`). There, `push-ok` is `cloud`, and the branch is pushed at every commit.
 - **Find an existing run first.** A run may have been started on another device, so its branch can exist only on the remote.
   - Run `git fetch --quiet` when there is a remote, then list `git branch -a --list '*shipyard/*'`.
