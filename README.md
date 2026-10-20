@@ -218,10 +218,15 @@ Cloud sessions (Claude Code on the web and in the mobile app) do not load locall
 ```bash
 bash tests/check-skill.sh && bash tests/check-agents.sh && bash tests/check-bootstrap.sh
 claude plugin validate --strict .
-claude plugin eval . --ablation none --scaffold --allow-tools Bash Write Edit --trust-plugin --judge-model sonnet
 ```
 
-Use `--case '<glob>'` and `--runs <n>` to run a subset of the evaluations.
+Text checks are free and catch most editing mistakes; run them after every change. Evaluations cost real money per run (each is a full agent session) and should be spent deliberately:
+
+1. **Debug on one run, kept.** `claude plugin eval . --case '<name>' --runs 1 --keep-temp --ablation none --scaffold --allow-tools Bash Write Edit --trust-plugin --judge-model sonnet`. On a miss, read the kept sandbox directly (`$TMPDIR/claude-eval-*/out/trace.jsonl`, and the files it wrote under `sealed/`) rather than guess from the grader's one-line verdict — a `focus: trace` grader in particular is known to miss things that are plainly present when you read the file yourself.
+2. **Confirm against the unmodified baseline before calling it a regression.** `git stash` the change, re-run the same case under the same conditions, `git stash pop`. LLM-judged criteria are noisy at `n=1`; a miss that also happens on the baseline is not caused by your change.
+3. **Only then spend on a multi-run batch** (`--runs 3`, the project default) for a real pass-rate signal, and only on the case(s) your change could plausibly affect — not the full suite, which costs tens of dollars per pass. Run the full suite (`claude plugin eval . --ablation none --scaffold --allow-tools Bash Write Edit --trust-plugin --judge-model sonnet`, one run per case with `--runs 1`) only before a version bump that changes orchestrator behaviour, not on every edit.
+
+Use `--case '<glob>'` (one glob per invocation — it does not accept a list) and `--runs <n>` to control the subset and sample size.
 
 ## License
 
